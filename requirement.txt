@@ -1,3 +1,0 @@
-board
-adafruit_icm20x
-serial

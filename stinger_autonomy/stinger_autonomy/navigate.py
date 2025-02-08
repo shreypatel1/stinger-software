@@ -26,16 +26,16 @@ class NavigationNode(Node):
         self.state_subscription = self.create_subscription(Odometry, '/localization/odometry', self.state_callback, 10)
         self.lidar_subscription = self.create_subscription(LaserScan, '/scan', self.lidar_callback, 10)
 
-        # Declare and get motor topics from params
-        self.declare_parameter('motor_topic_left', 'thrusters/left/thrust')
-        self.declare_parameter('motor_topic_right', 'thrusters/right/thrust')
+        # # Declare and get motor topics from params
+        # self.declare_parameter('motor_topic_left', 'thrusters/left/thrust')
+        # self.declare_parameter('motor_topic_right', 'thrusters/right/thrust')
 
-        self.motor_topic_left = self.get_parameter('motor_topic_left').get_parameter_value().string_value
-        self.motor_topic_right = self.get_parameter('motor_topic_right').get_parameter_value().string_value
+        # self.motor_topic_left = self.get_parameter('motor_topic_left').get_parameter_value().string_value
+        # self.motor_topic_right = self.get_parameter('motor_topic_right').get_parameter_value().string_value
 
         # Publishers for motor commands
-        self.port_motor_publisher = self.create_publisher(Float64, self.motor_topic_left, 10)
-        self.stbd_motor_publisher = self.create_publisher(Float64, self.motor_topic_right, 10)
+        self.port_motor_publisher = self.create_publisher(Float64, '/thrusters/left/thrust', 10)
+        self.stbd_motor_publisher = self.create_publisher(Float64, '/thrusters/right/thrust', 10)
 
         # PID Controller gains
         self.kp_linear = 1.0
@@ -68,7 +68,7 @@ class NavigationNode(Node):
     def lidar_callback(self, msg: LaserScan):
         # Detect obstacles within a certain distance threshold
         min_distance = min(msg.ranges)
-        if min_distance < 1.5:  # Obstacle within 1.5m
+        if min_distance < 1.0:  # Obstacle within 1.0m
             self.obstacle_detected = True
         else:
             self.obstacle_detected = False
