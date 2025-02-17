@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-package_name = 'stinger_bringup'
+package_name = 'stinger_autonomy'
 
 setup(
     name=package_name,
@@ -13,17 +13,16 @@ setup(
     ],
     install_requires=['setuptools'],
     zip_safe=True,
-    maintainer='fishy',
-    maintainer_email='seantfish@gmail.com',
+    maintainer='alicechan',
+    maintainer_email='alicechaninteng@gmail.com',
     description='TODO: Package description',
-    license='TODO: License declaration',
+    license='Apache-2.0',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'camera-node = stinger_bringup.camera:main',
-            'gps-node = stinger_bringup.gps:main',
-            'imu-node = stinger_bringup.imu:main',
-            'motor-node = stinger_bringup.motor:main',
+            'detection-node = stinger_autonomy.detection:main',
+            'navigation-node = stinger_autonomy.navigate:main',
+            'state-manager-node = stinger_autonomy.state_manager:main',
         ],
     },
 )
