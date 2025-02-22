@@ -54,6 +54,8 @@ class GpsPublisher(Node):
             msg.altitude = altitude
             msg.header.frame_id = 'gps_frame'
             msg.header.stamp = self.get_clock().now().to_msg()
+
+            self.get_logger().info(f'GPS Fix:: Lat={latitude}, Long={longitude}, Alt={altitude}')
             
             self.publisher_.publish(msg)
         except ValueError:
