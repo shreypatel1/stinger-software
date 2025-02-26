@@ -6,6 +6,9 @@ This node is publishing topic /gps/fix
 
 Resources:
 1. https://receiverhelp.trimble.com/alloy-gnss/en-us/NMEA-0183messages_MessageOverview.html
+^ Look into GNS Fix data
+
+Example output: $GPGGA,210621.00,3346.39300,N,08423.80898,W,1,03,3.03,127.4,M,-31.2,M,,*61
 '''
 
 import rclpy
@@ -32,7 +35,7 @@ class GpsPublisher(Node):
     def read_serial_data(self):
         if self.serial_port.in_waiting > 0:
             line = self.serial_port.readline().decode('ascii', errors='ignore').strip()
-            if line.startswith('$GNGGA') or line.startswith('$GPGGA'):
+            if line.startswith('$GNGGA') or line.startswith('$GPGGA'): # for our case, it's GPGGA
                 self.parse_nmea_and_publish(line)
 
     def parse_nmea_and_publish(self, nmea_sentence):
@@ -62,13 +65,23 @@ class GpsPublisher(Node):
             self.get_logger().error('Failed to parse NMEA sentence')
 
     def nmea_to_decimal(self, nmea_value, direction):
+        """
+        for our case, lat DDMM.MMMM, long DDDMM.MMMM
+        TODO: change the logic here if that's not the case for you
+        """
         if not nmea_value:
             return 0.0
-        degrees = float(nmea_value[:2])
-        minutes = float(nmea_value[2:])
+
+        if direction in ['N', 'S']:  # Latitude (DDMM.MMMM)
+            degrees = float(nmea_value[:2])
+            minutes = float(nmea_value[2:])
+        else:  # Longitude (DDDMM.MMMM)
+            degrees = float(nmea_value[:3])
+            minutes = float(nmea_value[3:])
+
         decimal = degrees + minutes / 60.0
         if direction in ['S', 'W']:
-            decimal *= -1
+            decimal *= -1 # make sure negative for s and w
         return decimal
 
 def main(args=None):
