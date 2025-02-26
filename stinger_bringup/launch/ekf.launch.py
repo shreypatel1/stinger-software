@@ -35,9 +35,9 @@ def generate_launch_description():
             executable='ekf_node',
             name='ekf_filter_node',
             parameters=[robot_localization_file_path],
-            # remappings=[
-            # ("/odometry/filtered", "/localization/odometry"),
-            # ]
+            remappings=[
+            ("/example/imu", "/imu/data"),
+            ],
         ),    
         Node(
             package='robot_localization',
@@ -45,10 +45,8 @@ def generate_launch_description():
             name='navsat_transform_node',
             parameters=[navsat_transform_file_path],
             respawn=True,
-            # remappings=[
-            # ('/imu', '/navsat/imu'),
-            # ('/gps/fix', '/navsat/gps'),
-            # ("/odometry/filtered", "/localization/odometry"),
-            # ],
+            remappings=[
+            ('/imu', '/imu/data'),
+            ],
         )
     ])
