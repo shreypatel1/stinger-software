@@ -1,0 +1,12 @@
+<?xml version="1.0" ?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="stinger_tug">
+  <xacro:include filename="$(find stinger_description)/models/stinger_base/stinger_base.xacro"/>
+  <link name="base_link">
+  </link>
+  <xacro:stinger_base />
+  <joint name="hull_joint" type="fixed">
+    <origin xyz="0 0 0"/>
+    <parent link="base_link"/>
+    <child link="hull_link"/>
+  </joint>
+</robot>
