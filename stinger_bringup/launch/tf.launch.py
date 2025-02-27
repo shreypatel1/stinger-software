@@ -38,7 +38,15 @@ def generate_launch_description():
             arguments = ["--x", "0", "--y", "0", "--z", "0", "--roll", "0", "--pitch", "0", "--yaw", "0.0", "--frame-id", "map", "--child-frame-id", "odom"]
         )
 
+    imu_to_base_tf = Node(
+            package='tf2_ros',
+            executable='static_transform_publisher',
+            name='static_transform_publisher',
+            arguments = ["--x", "0", "--y", "0", "--z", "0", "--roll", "0", "--pitch", "0", "--yaw", "0.0", "--frame-id", "base_link", "--child-frame-id", "imu_link"]
+        )
+
     return LaunchDescription([
         robot_state_publisher,
-        odom_to_map_tf
+        odom_to_map_tf,
+        # imu_to_base_tf
     ])

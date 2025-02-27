@@ -33,7 +33,7 @@
     </link>
 
     <joint name="hull_joint" type="fixed">
-        <origin xyz="0 0 0" />
+        <origin xyz="0 0 0" rpy="0 0 0"/>
         <parent link="base_link" />
         <child link="hull_link" />
     </joint>
@@ -103,7 +103,7 @@
     </link>
 
     <joint name="imu_joint" type="fixed">
-      <origin xyz="0 0 0"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
       <parent link="hull_link"/>
       <child link="imu_link"/>
     </joint>

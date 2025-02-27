@@ -51,6 +51,13 @@ class IMUPublisher(Node):
             msg.angular_velocity.y = gyro_y
             msg.angular_velocity.z = gyro_z
 
+            # ACCEL_NOISE = 0.02  # m/s² standard deviation
+            # GYRO_NOISE = 0.01  # rad/s standard deviation
+            # ORIENT_NOISE = 0.01  # Use high value if orientation is not provided
+            # msg.linear_acceleration_covariance = [ACCEL_NOISE**2 if i % 4 == 0 else 0.0 for i in range(9)]
+            # msg.angular_velocity_covariance = [GYRO_NOISE**2 if i % 4 == 0 else 0.0 for i in range(9)]
+            # msg.orientation_covariance = [ORIENT_NOISE if i % 4 == 0 else 0.0 for i in range(9)]  # No orientation data
+
             # Log and publish the message
             self.imu_pub.publish(msg)
             self.get_logger().info(f"Accel: ({accel_x:.2f}, {accel_y:.2f}, {accel_z:.2f}) "
