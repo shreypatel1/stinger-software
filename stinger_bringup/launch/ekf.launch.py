@@ -39,14 +39,14 @@ def generate_launch_description():
             ("/example/imu", "/imu/data"),
             ],
         ),    
-        # Node(
-        #     package='robot_localization',
-        #     executable='navsat_transform_node',
-        #     name='navsat_transform_node',
-        #     parameters=[navsat_transform_file_path],
-        #     respawn=True,
-        #     remappings=[
-        #     ('/imu', '/imu/data'),
-        #     ],
-        # )
+        Node(
+            package='robot_localization',
+            executable='navsat_transform_node',
+            name='navsat_transform_node',
+            parameters=[navsat_transform_file_path],
+            respawn=True,
+            remappings=[
+            ('/imu', '/imu/data'),
+            ],
+        )
     ])
