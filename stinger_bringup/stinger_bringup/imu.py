@@ -104,9 +104,9 @@ class IMUPublisher(Node):
             msg.orientation_covariance = [self.ORIENT_NOISE**2 if i % 4 == 0 else 0.0 for i in range(9)]
 
             self.imu_pub.publish(msg)
-            self.get_logger().info(f"Accel: ({accel_x:.2f}, {accel_y:.2f}, {accel_z:.2f}) "
-                                    f"Gyro: ({gyro_x:.2f}, {gyro_y:.2f}, {gyro_z:.2f}) "
-                                    f"Mag: ({mag_x:.2f}, {mag_y:.2f}, {mag_z:.2f})")
+            # self.get_logger().info(f"Accel: ({accel_x:.2f}, {accel_y:.2f}, {accel_z:.2f}) "
+            #                         f"Gyro: ({gyro_x:.2f}, {gyro_y:.2f}, {gyro_z:.2f}) "
+            #                         f"Mag: ({mag_x:.2f}, {mag_y:.2f}, {mag_z:.2f})")
         
         except Exception as e:
             self.get_logger().error(f"Error reading IMU data: {str(e)}")

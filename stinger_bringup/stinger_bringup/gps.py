@@ -2,8 +2,6 @@
 GT-U7 GPS Module
 This node is publishing topic /gps/fix
 
-*Unfinished TODO in the code
-
 Resources:
 1. https://receiverhelp.trimble.com/alloy-gnss/en-us/NMEA-0183messages_MessageOverview.html
 ^ Look into GNS Fix data
@@ -58,7 +56,7 @@ class GpsPublisher(Node):
             msg.header.frame_id = 'gps_frame'
             msg.header.stamp = self.get_clock().now().to_msg()
 
-            self.get_logger().info(f'GPS Fix:: Lat={latitude}, Long={longitude}, Alt={altitude}')
+            # self.get_logger().info(f'GPS Fix:: Lat={latitude}, Long={longitude}, Alt={altitude}')
             
             self.publisher_.publish(msg)
         except ValueError:
