@@ -6,10 +6,7 @@ This publishes topic /odom
 
 from ament_index_python import get_package_share_directory
 from launch import LaunchDescription
-from launch.substitutions import LaunchConfiguration
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
 from launch_ros.actions import Node
-from launch.launch_description_sources import PythonLaunchDescriptionSource
 import os
 
 def generate_launch_description():
@@ -21,23 +18,10 @@ def generate_launch_description():
 
     return LaunchDescription([
         Node(
-            package='stinger_bringup',
-            executable='imu-node',
-            name='imu_node',
-        ),
-        Node(
-            package='stinger_bringup',
-            executable='gps-node',
-            name='gps_node',
-        ),
-        Node(
             package='robot_localization',
             executable='ekf_node',
             name='ekf_filter_node',
             parameters=[robot_localization_file_path],
-            remappings=[
-            ("/example/imu", "/imu/data"),
-            ],
         ),    
         Node(
             package='robot_localization',
@@ -46,7 +30,11 @@ def generate_launch_description():
             parameters=[navsat_transform_file_path],
             respawn=True,
             remappings=[
-            ('/imu', '/imu/data'),
+            # TODO: 4.4.b Navsat Node
+            # Example: (topic, remaped_topic)
+            ### STUDENT CODE HERE
+
+            ### END STUDENT CODE
             ],
         )
     ])

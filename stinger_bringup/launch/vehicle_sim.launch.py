@@ -4,14 +4,18 @@ from launch import LaunchDescription
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.actions import DeclareLaunchArgument
+from launch.actions import TimerAction
 
 def generate_launch_description():
+
+    ld = []
 
     world_arg = DeclareLaunchArgument(
         'world',
         default_value = 'default.world'
     )
     world = LaunchConfiguration('world')
+    ld.append(world_arg)
 
     gzsim = launch.actions.IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
@@ -23,6 +27,7 @@ def generate_launch_description():
         ),
         launch_arguments = {'world': world}.items()
     )
+    ld.append(gzsim)
 
     spawn_vehicle = launch.actions.IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
@@ -33,9 +38,20 @@ def generate_launch_description():
             ])
         ),
     )
+    ld.append(spawn_vehicle)
 
-    return LaunchDescription([
-        world_arg,
-        gzsim,
-        spawn_vehicle,
-    ])
+    # TODO: Uncomment after completing section 4
+    localization = launch.actions.IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            PathJoinSubstitution([
+                get_package_share_directory('stinger_bringup'),
+                'launch',
+                'localization.launch.py'
+            ]),
+        ),
+    )
+    # Delay to allow sensors to populate
+    delayed_localization = TimerAction(period=5.0, actions=[localization])
+    ld.append(delayed_localization)
+
+    return LaunchDescription(ld)

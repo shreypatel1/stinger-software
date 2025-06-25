@@ -1,6 +1,9 @@
 ### ekf config file -- see https://github.com/cra-ros-pkg/robot_localization/blob/ros2/params/ekf.yaml###
 ekf_filter_node:
     ros__parameters:
+        
+        use_sim_time: true
+
         # The frequency, in Hz, at which the filter will output a position estimate. Note that the filter will not begin
         # computation until it receives at least one message from one of the inputs. It will then run continuously at the
         # frequency specified here, regardless of whether it receives more measurements. Defaults to 30 if unspecified.
@@ -77,8 +80,6 @@ ekf_filter_node:
         # odom1, twist0, twist1, imu0, imu1, imu2, etc. The value should be the topic name. These parameters obviously have no
         # default values, and must be specified.
         # odom0: example/odom
-        imu0: /imu/data
-        # gps0: /odometry/gps
 
         # Each sensor reading updates some or all of the filter's state. These options give you greater control over which
         # values from each measurement are fed to the filter. For example, if you have an odometry message as input, but only
@@ -88,26 +89,38 @@ ekf_filter_node:
         # has no pose information, so the first six values would be meaningless in that case. Each vector defaults to all false
         # if unspecified, effectively making this parameter required for each sensor.
 
-        imu0_config: [false, false, false,
-                      true,  true,  true,
-                      false, false, false,
-                      true,  true,  true,
-                      false,  false,  false]
-
         #        [x_pos   , y_pos    , z_pos,
         #         roll    , pitch    , yaw,
         #         x_vel   , y_vel    , z_vel,
         #         roll_vel, pitch_vel, yaw_vel,
         #         x_accel , y_accel  , z_accel]
 
-        # Add odometry from NavSat transform
+        # TODO: 4.4.a Integrating IMU in robot_localization
+        imu0: /stinger/imu/data
+        # 4.4.a Example
+        # imu0_config: [true, true, false,
+        #               false, false, true,
+        #               false, false, false,
+        #               false, false, false,
+        #               false, false, false]
+
+        ### STUDENT CODE HERE
+        imu0_config: [false, false, false,
+                      true,  true,  true,
+                      false, false, false,
+                      true,  true,  true,
+                      false,  false,  false]
+        ### END STUDENT CODE
+
+        # TODO: 4.4.c Add odometry from NavSat transform
         odom0: /odometry/gps
+        ### STUDENT CODE HERE
         odom0_config: [true, true, false,
                       false, false, false,
-                      true, true, false,
+                      false, false, false,
                       false, false, false,
                       false, false, false]
-                       
+        ### END STUDENT CODE                       
 ##########################################################################################################
         # If you have high-frequency data or are running with a low frequency parameter value, then you may want to increase
         # the size of the subscription queue so that more measurements are fused.
@@ -121,7 +134,7 @@ ekf_filter_node:
         # data is converted to velocity data by differentiating the absolute pose measurements. These velocities are then
         # integrated as usual. NOTE: this only applies to sensors that provide pose measurements; setting differential to true
         # for twist measurements has no effect.
-        odom0_differential: true
+        odom0_differential: false
 
         # [ADVANCED] When the node starts, if this parameter is true, then the first measurement is treated as a "zero point"
         # for all future measurements. While you can achieve the same effect with the differential paremeter, the key
@@ -193,6 +206,7 @@ ekf_filter_node:
         # [ADVANCED] Some IMUs automatically remove acceleration due to gravity, and others don't. If yours doesn't, please set
         # this to true, and *make sure* your data conforms to REP-103, specifically, that the data is in ENU frame.
         imu0_remove_gravitational_acceleration: true
+        imu0_relative: true
 
         # [ADVANCED]  The EKF and UKF models follow a standard predict/correct cycle. During prediction, if there is no
         # acceleration reference, the velocity at time t+1 is simply predicted to be the same as the velocity at time t. During

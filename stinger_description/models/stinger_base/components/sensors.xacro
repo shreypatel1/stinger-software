@@ -69,23 +69,22 @@
         <visualize>true</visualize>
         <topic>stinger/laser/scan</topic>
 
-        <!-- This tag isn't recognized by SDF but is extremely important for getting the correct TF data for the sonar frame-->
         <gz_frame_id>lidar</gz_frame_id>
       </sensor>
     </gazebo>
   </xacro:macro>
 
   <xacro:macro name="imu_macro" params="*origin">
-    <link name="imu"/>
+    <link name="imu_link"/>
 
     <joint name="imu_joint" type="fixed">
       <xacro:insert_block name="origin"/>
-      <parent link="hull_link"/>
-      <child link="imu"/>
+      <parent link="base_link"/>
+      <child link="imu_link"/>
       <axis xyz="1 0 0"/>
     </joint>
 
-    <gazebo reference="imu">
+    <gazebo reference="imu_link">
       <sensor name="imu_sensor" type="imu">
         <pose>0 0 0 0 0 0</pose>
         <always_on>1</always_on>
@@ -94,7 +93,7 @@
         <update_rate>1000</update_rate>
 
         <!-- This tag isn't recognized by SDF but is extremely important for getting the correct TF data for the IMU frame-->
-        <gz_frame_id>imu</gz_frame_id>
+        <gz_frame_id>imu_link</gz_frame_id>
       </sensor>
     </gazebo>
   </xacro:macro>
@@ -113,7 +112,7 @@
         <always_on>1</always_on>
         <update_rate>10</update_rate>
         <topic>stinger/gps/fix</topic>
-        <gz_frame_id>gps</gz_frame_id>
+        <gz_frame_id>gps_link</gz_frame_id>
       </sensor>
     </gazebo>
   </xacro:macro>
