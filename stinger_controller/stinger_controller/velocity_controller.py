@@ -1,7 +1,7 @@
 import rclpy
 from rclpy.node import Node
-from geometry_msgs.msg import Twist
-from stinger_controller.PID import PID
+from geometry_msgs.msg import Accel, Twist
+from stinger_controller.control_models.PID import PID
 from nav_msgs.msg import Odometry
 
 class VelocityController(Node):
@@ -16,7 +16,7 @@ class VelocityController(Node):
         )
 
         self.cmd_accel_pub = self.create_publisher(
-            Twist,
+            Accel,
             '/cmd_accel',
             10
         )
@@ -40,17 +40,20 @@ class VelocityController(Node):
         self.cmd_angular = msg.angular.z
     
     def odometry_callback(self, msg: Odometry):
-        twist_msg: Twist = Twist()
-        linear_err = 0.0
-        angular_err = 0.0
+        accel_msg: Accel = Accel()
 
-        ### STUDENT CODE HERE
+        v_linear = msg.twist.twist.linear.x
+        v_angular = msg.twist.twist.angular.z
 
-        ### END STUDENT CODE
+        linear_err = self.cmd_linear - v_linear
+        angular_err = self.cmd_angular - v_angular
+
+        dt = self.get_clock().now() - self.prev_time
+        self.prev_time = self.get_clock().now()
         
-        twist_msg.linear.x = self.pid_linear(linear_err, dt)
-        twist_msg.angular.z = self.pid_angular(angular_err, dt)
-        self.cmd_accel_pub.publish(twist_msg)
+        accel_msg.linear.x = self.pid_linear(linear_err, dt)
+        accel_msg.angular.z = self.pid_angular(angular_err, dt)
+        self.cmd_accel_pub.publish(accel_msg)
 
 def main(args=None):
     rclpy.init(args=args)
