@@ -1,16 +1,23 @@
 import rclpy
 from rclpy.node import Node
-from geometry_msgs.msg import Accel, Wrench
+from geometry_msgs.msg import Accel, Wrench, Twist
 from sensor_msgs.msg import Imu
 from stinger_controller.control_models.control_base_class import CompositeControlFunction
 from stinger_controller.control_models.PID import PID
 from stinger_controller.control_models.simple_newtonian_model import SimpleNewtonianModel
 from stinger_controller.control_models.simple_inertial_model import SimpleInertialModel
-from rclpy.time import Duration
+from stinger_controller.control_models.simple_linear_drag_model import SimpleLinearDragModel
 
 class AccelerationController(Node):
     def __init__(self):
         super().__init__('acceleration_controller')
+
+        self.create_subscription(
+            Twist,
+            '/cmd_vel',
+            self.cmd_vel_callback,
+            10
+        )
 
         self.create_subscription(
             Accel,
@@ -31,12 +38,13 @@ class AccelerationController(Node):
             '/cmd_wrench',
             10
         )
-
+        cross_section_area = 2 * 0.081 * 0.135
         self.linear = CompositeControlFunction([
             # Feedback
-            PID(kp=1.0, ki=0.0, kd=0.0),
+            PID(kp=2.0, ki=0.0, kd=0.0),
             # Feedforward
-            SimpleNewtonianModel(mass=5.0)
+            SimpleNewtonianModel(mass=5.0),
+            SimpleLinearDragModel(C=0.82, area=cross_section_area)
         ])
 
         self.angular = CompositeControlFunction([
@@ -50,11 +58,15 @@ class AccelerationController(Node):
         self.prev_angular_velocity = None
         self.cmd_acceleration_linear = 0.0
         self.cmd_acceleration_angular = 0.0
+        self.cmd_vel_linear = 0.0
     
     def cmd_accel_callback(self, msg: Accel) -> None:
         self.cmd_acceleration_linear = msg.linear.x
         self.cmd_acceleration_angular = msg.angular.z
     
+    def cmd_vel_callback(self, msg: Twist) -> None:
+        self.cmd_vel_linear = msg.linear.x
+
     def imu_callback(self, msg: Imu) -> None:
         if self.prev_time is None or self.prev_angular_velocity is None:
             self.prev_time = self.get_clock().now()
@@ -65,7 +77,8 @@ class AccelerationController(Node):
         linear_error = self.cmd_acceleration_linear - a_linear
         linear_input = {
             'error': linear_error,
-            'acceleration': self.cmd_acceleration_linear
+            'acceleration': self.cmd_acceleration_linear,
+            'velocity': self.cmd_vel_linear
         }
 
         dt = self.get_clock().now() - self.prev_time

@@ -25,7 +25,13 @@ def generate_launch_description():
             output='screen',
             name='acceleration_controller',
             remappings=[
-                ('/imu/data', '/stinger/imu/data')
+                ('/imu/data', '/stinger/imu/relative')
             ]
+        ),
+        Node(
+            package='stinger_controller',
+            executable='velocity_controller',
+            output='screen',
+            name='velocity_controller',
         ),
     ])

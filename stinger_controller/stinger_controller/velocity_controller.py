@@ -28,8 +28,8 @@ class VelocityController(Node):
           10
         )
 
-        self.pid_linear = PID(20, 0, 0)
-        self.pid_angular = PID(10, 0, 0)
+        self.pid_linear = PID(kp=1, ki=0, kd=0)
+        self.pid_angular = PID(kp=1, ki=0, kd=0)
 
         self.prev_time = self.get_clock().now()
         self.cmd_linear = 0.0
@@ -41,18 +41,20 @@ class VelocityController(Node):
     
     def odometry_callback(self, msg: Odometry):
         accel_msg: Accel = Accel()
-
+        
         v_linear = msg.twist.twist.linear.x
         v_angular = msg.twist.twist.angular.z
 
         linear_err = self.cmd_linear - v_linear
+        linear_input = {
+            'error': linear_err
+        }
         angular_err = self.cmd_angular - v_angular
-
-        dt = self.get_clock().now() - self.prev_time
-        self.prev_time = self.get_clock().now()
-        
-        accel_msg.linear.x = self.pid_linear(linear_err, dt)
-        accel_msg.angular.z = self.pid_angular(angular_err, dt)
+        angular_input = {
+            'error': angular_err
+        }
+        accel_msg.linear.x = self.pid_linear(linear_input)
+        accel_msg.angular.z = self.pid_angular(angular_input)
         self.cmd_accel_pub.publish(accel_msg)
 
 def main(args=None):

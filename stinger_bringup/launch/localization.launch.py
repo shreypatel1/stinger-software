@@ -36,5 +36,11 @@ def generate_launch_description():
 
             ### END STUDENT CODE
             ],
+        ),
+        Node(
+            package='stinger_bringup',
+            executable='imu_republisher',
+            name='imu_republisher',
+            output='screen'
         )
     ])
