@@ -6,4 +6,4 @@ class SimpleInertialModel(ControlBaseClass):
     
     def __call__(self, input: dict) -> float:
         # T = Ia
-        return input['alpha'] * self.moment
+        return input['desired_control'] * self.moment

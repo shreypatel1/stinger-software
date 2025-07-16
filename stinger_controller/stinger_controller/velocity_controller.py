@@ -34,24 +34,31 @@ class VelocityController(Node):
         self.prev_time = self.get_clock().now()
         self.cmd_linear = 0.0
         self.cmd_angular = 0.0
+
+        self.create_timer(
+            0.02,
+            self.controller_callback
+        )
     
+        self.current_odometry = Odometry()
+
     def cmd_vel_callback(self, msg: Twist):
         self.cmd_linear = msg.linear.x
         self.cmd_angular = msg.angular.z
     
     def odometry_callback(self, msg: Odometry):
+        self.current_odometry = msg
+    
+    def controller_callback(self):
         accel_msg: Accel = Accel()
         
-        v_linear = msg.twist.twist.linear.x
-        v_angular = msg.twist.twist.angular.z
-
-        linear_err = self.cmd_linear - v_linear
         linear_input = {
-            'error': linear_err
+            'desired_control': self.cmd_linear,
+            'actual_control': self.current_odometry.twist.twist.linear.x
         }
-        angular_err = self.cmd_angular - v_angular
         angular_input = {
-            'error': angular_err
+            'desired_control': self.cmd_angular,
+            'actual_control': self.current_odometry.twist.twist.angular.z
         }
         accel_msg.linear.x = self.pid_linear(linear_input)
         accel_msg.angular.z = self.pid_angular(angular_input)

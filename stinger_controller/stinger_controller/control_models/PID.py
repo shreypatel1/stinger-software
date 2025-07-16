@@ -26,7 +26,7 @@ class PID(ControlBaseClass):
         P = 0
         I = 0
         D = 0
-        error = input['error']
+        error = input['desired_control'] - input['actual_control']
 
         ### STUDENT CODE HERE
 

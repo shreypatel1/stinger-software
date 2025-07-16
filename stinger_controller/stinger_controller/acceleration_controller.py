@@ -7,6 +7,9 @@ from stinger_controller.control_models.PID import PID
 from stinger_controller.control_models.simple_newtonian_model import SimpleNewtonianModel
 from stinger_controller.control_models.simple_inertial_model import SimpleInertialModel
 from stinger_controller.control_models.simple_linear_drag_model import SimpleLinearDragModel
+from stinger_controller.control_models.force_disturbance_observer import ForceDisturbanceObserver
+from stinger_controller.control_models.simple_inverse_newtonian_model import SimpleInverseNewtonianModel
+
 
 class AccelerationController(Node):
     def __init__(self):
@@ -38,13 +41,14 @@ class AccelerationController(Node):
             '/cmd_wrench',
             10
         )
-        cross_section_area = 2 * 0.081 * 0.135
+        mass = 5.0
         self.linear = CompositeControlFunction([
             # Feedback
-            PID(kp=2.0, ki=0.0, kd=0.0),
+            PID(kp=1.0, ki=0.0, kd=0.0),
             # Feedforward
-            SimpleNewtonianModel(mass=5.0),
-            SimpleLinearDragModel(C=0.82, area=cross_section_area)
+            ForceDisturbanceObserver(gamma=0.2,
+                                     force_to_acceleration_model=SimpleInverseNewtonianModel(mass=mass),
+                                     acceleration_to_force_model=SimpleNewtonianModel(mass=mass))
         ])
 
         self.angular = CompositeControlFunction([
@@ -59,6 +63,7 @@ class AccelerationController(Node):
         self.cmd_acceleration_linear = 0.0
         self.cmd_acceleration_angular = 0.0
         self.cmd_vel_linear = 0.0
+        self.previous_commanded_force = 0.0
     
     def cmd_accel_callback(self, msg: Accel) -> None:
         self.cmd_acceleration_linear = msg.linear.x
@@ -73,23 +78,22 @@ class AccelerationController(Node):
             self.prev_angular_velocity = msg.angular_velocity.z
             return
         wrench_msg: Wrench = Wrench()
-        a_linear = msg.linear_acceleration.x
-        linear_error = self.cmd_acceleration_linear - a_linear
         linear_input = {
-            'error': linear_error,
-            'acceleration': self.cmd_acceleration_linear,
-            'velocity': self.cmd_vel_linear
+            'desired_control': self.cmd_acceleration_linear,
+            'actual_control': msg.linear_acceleration.x,
+            'velocity': self.cmd_vel_linear,
+            'previous_control_command': self.previous_commanded_force
         }
 
         dt = self.get_clock().now() - self.prev_time
         a_angular = (msg.angular_velocity.z - self.prev_angular_velocity) / (dt.nanoseconds * 1e-9)
-        angular_error = self.cmd_acceleration_angular - a_angular
         angular_input = {
-            'error': angular_error,
-            'alpha': self.cmd_acceleration_angular
+            'desired_control': self.cmd_acceleration_angular,
+            'actual_control': a_angular
         }
 
         wrench_msg.force.x = self.linear(linear_input)
+        self.previous_commanded_force = wrench_msg.force.x
         wrench_msg.torque.z = self.angular(angular_input)
         self.cmd_wrench_pub.publish(wrench_msg)
 
