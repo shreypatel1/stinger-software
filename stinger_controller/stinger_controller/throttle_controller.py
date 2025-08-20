@@ -1,6 +1,6 @@
 import rclpy
 from rclpy.node import Node
-from geometry_msgs.msg import Wrench
+from geometry_msgs.msg import WrenchStamped
 from std_msgs.msg import Float64
 import numpy as np
 
@@ -13,7 +13,7 @@ class ThrottleController(Node):
 
         # ROS2 Subscriptions & Publishers
         self.create_subscription(
-            Wrench,
+            WrenchStamped,
             '/cmd_wrench',
             self.wrench_callback,
             10
@@ -31,9 +31,9 @@ class ThrottleController(Node):
             10
         )
 
-    def wrench_callback(self, msg: Wrench):
-        fx = msg.force.x          # Desired force in X (surge)
-        torque_z = msg.torque.z   # Desired yaw torque
+    def wrench_callback(self, msg: WrenchStamped):
+        fx = msg.wrench.force.x          # Desired force in X (surge)
+        torque_z = msg.wrench.torque.z   # Desired yaw torque
 
         d = self.thruster_distance
 
@@ -59,7 +59,7 @@ class ThrottleController(Node):
         u_stbd = motor_forces[1]
 
         # Optional: saturate to maximum thruster output
-        max_thrust = 5.0
+        max_thrust = 30.0
         u_port = np.clip(u_port, -max_thrust, max_thrust)
         u_stbd = np.clip(u_stbd, -max_thrust, max_thrust)
 

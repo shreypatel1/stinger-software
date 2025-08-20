@@ -11,7 +11,8 @@ find_package(rosidl_default_generators REQUIRED)
 find_package(geometry_msgs REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
-  "msg/Waypoint.msg"
+  "msg/ParametricLine.msg"
+  "msg/Goal.msg"
   DEPENDENCIES geometry_msgs
 )
 
