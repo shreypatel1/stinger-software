@@ -49,6 +49,10 @@ class VelocityController(Node):
         # TODO: 5.1.b Error Calculation
         ### STUDENT CODE HERE
 
+        ### END STUDENT CODE
+
+        P_surge = 0
+        # TODO: 5.1.c Proportional Calculation
         ### STUDENT CODE HERE
 
         ### END STUDENT CODE
