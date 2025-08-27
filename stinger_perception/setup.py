@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-package_name = 'stinger_autonomy'
+package_name = 'stinger_perception'
 
 setup(
     name=package_name,
@@ -16,11 +16,11 @@ setup(
     maintainer='alicechan',
     maintainer_email='alicechaninteng@gmail.com',
     description='TODO: Package description',
-    license='Apache-2.0',
+    license='TODO: License declaration',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'state_node = stinger_autonomy.state:main',
+            'perception_node = stinger_perception.detection:main',
         ],
     },
 )

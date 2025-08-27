@@ -1,0 +1,2 @@
+float64 red_x
+float64 green_x

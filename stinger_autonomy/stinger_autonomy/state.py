@@ -1,37 +1,22 @@
 '''
-This node takes in camera image and identifies the pair of gates and the goal.
-
-Search for TODO to complete this node.
+Stinger Finite State Machine
 '''
-
 import rclpy
 from rclpy.node import Node
-from sensor_msgs.msg import Image, LaserScan
-from geometry_msgs.msg import Point
-from cv_bridge import CvBridge
-import cv2
-import numpy as np
-from std_msgs.msg import Bool
-
-import rclpy
-from rclpy.node import Node
-from sensor_msgs.msg import Image
 from geometry_msgs.msg import Twist
-from cv_bridge import CvBridge
-import cv2
 import numpy as np
 from enum import Enum
-from sensor_msgs.msg import Imu
-import tf_transformations
+from stinger_msgs.msg import Gate
 
 class State(Enum):
     Searching = 0
     Approaching = 1
-    #TODO Define your states
+    Passing_Through = 2
+    PassedThrough = 3
 
-class GateTask(Node):
+class StateMachine(Node):
     def __init__(self):
-        super().__init__("Gate_Task")
+        super().__init__("State_Machine")
 
         self.image_width = 1280
         self.hfov = 1.09956
@@ -43,53 +28,16 @@ class GateTask(Node):
         self.timer = self.create_timer(0.1, self.state_machine_callback)
         
         self.pre_push_time = None # time difference from last push and now calls correct orientation state
-        self.gate_offset = 0.0 # angle offset
-        self.starting_quat = None
 
-        self.cmd_vel_pub = self.create_publisher(Twist, '/cmd_vel_autonomy', 10)
-        self.imu_sub = self.create_subscription(Imu, '/imu/data', self.imu_callback, 10)
-        self.imu_result = Imu()
-        self.image_sub = self.create_subscription(Image, '/camera/image_raw', self.image_callback, 10)
-        self.bridge = CvBridge()
-        self.hsv = np.array([])
-        self.get_logger().info("Vision node initialized! Let there be light. You can see now.")
+        self.cmd_vel_pub = self.create_publisher(Twist, '/cmd_vel', 10)
+        self.gate_pos_sub = self.create_subscription(Gate, '/stinger/gate_location', self.gate_callback, 10)
 
-    def image_callback(self, msg):
-        """Process the camera feed to detect red, green, and yellow buoys."""
-        # TODO convert to cv2 format and hsv
+        self.current_gate_pos : Gate = Gate()
+        self.get_logger().info("State Machine node initialized!")
     
-    def imu_callback(self, msg):
-        self.imu_result = msg
-    
-    def find_circles(self, mask):
-        """Find circular contours in a binary mask."""
-        contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        detected = []
+    def gate_callback(self, msg: Gate):
+        self.current_gate_pos = msg
 
-        for cnt in contours:
-            (x, y), radius = cv2.minEnclosingCircle(cnt)
-            if 40 < radius:  # Filter small objects
-                detected.append((int(x), int(y), int(radius)))
-
-        detected_sorted = sorted(detected, key=lambda x: x[2], reverse=True)
-        return detected_sorted
-
-    def gate_detection_cv(self):
-        # TODO Define color ranges for red, green, and yellow in HSV
-
-        if len(self.hsv) == 0:
-            self.get_logger().info("Waitng for frame")
-            return [], []
-
-        # TODO Create masks
-
-
-        # Find contours for each color
-        red_buoy = self.find_circles(red_mask)
-        green_buoy = self.find_circles(green_mask)
-
-        return red_buoy, green_buoy
-    
     def calculate_gate_fov_bound(self, left_gate_x, right_gate_x):
         distance = 1
         if left_gate_x is not None and right_gate_x is not None:
@@ -104,14 +52,25 @@ class GateTask(Node):
     def state_machine_callback(self):
         self.state_debugger()
         cmd_vel = Twist()
-        # TODO state machine
+        match self.state:
+            case State.Searching:
+                cmd_vel = self.search()
+            case State.Approaching:
+                cmd_vel = self.approach()
+            case State.Passing_Through:
+                cmd_vel = self.pass_through()
+            case State.PassedThrough:
+                self.complete()
+            case _:
+                pass
         if cmd_vel is None:
             return
         self.cmd_vel_pub.publish(cmd_vel)
 
     def search(self):
         cmd_vel = Twist()
-        left_gate_location, right_gate_location = self.gate_detection_cv()
+        left_gate_location = self.current_gate_pos.red_x
+        right_gate_location = self.current_gate_pos.green_x
 
         self.get_logger().info(f"{left_gate_location}")
         self.get_logger().info(f"{right_gate_location}")
@@ -128,14 +87,16 @@ class GateTask(Node):
         mid_x_img = self.image_width // 2
         diff_mid = mid_x_img - mid_x
 
-        # If we are far too left, want to turn right, this will be a negative value
-        # If we are far too right, want to turn left, this will be a positive value
+        '''
+        If we are far too left, want to turn right, this will be a negative value
+        If we are far too right, want to turn left, this will be a positive value
+        '''
         turn_angle = diff_mid * deg_per_pixel
 
         self.get_logger().info(f"{turn_angle}")
 
-        # Command to go in that direction
-        cmd_vel.angular.z = self.angular_correction_factor * turn_angle
+        if abs(cmd_vel.angular.z) > 0.1:
+            cmd_vel.angular.z = np.sign(cmd_vel.angular.z) * 0.1
 
         if abs(turn_angle) < 0.1:
             self.state = State.Approaching
@@ -143,7 +104,8 @@ class GateTask(Node):
     
     def approach(self):
         cmd_vel = Twist()
-        left_gate_location, right_gate_location = self.gate_detection_cv()
+        left_gate_location = self.current_gate_pos.red_x
+        right_gate_location = self.current_gate_pos.green_x
 
         if len(left_gate_location)==0 or len(right_gate_location)==0:
             return
@@ -157,24 +119,24 @@ class GateTask(Node):
         diff_mid = mid_x_img - mid_x
         turn_angle = diff_mid * deg_per_pixel
 
-        #TODO, THIS MIGHT BE CURSED
-        self.gate_offset = turn_angle
-
         cmd_vel.angular.z = self.angular_correction_factor * turn_angle
-        cmd_vel.linear.x = 0.5
+        if abs(cmd_vel.angular.z) > 0.1:
+            cmd_vel.angular.z = np.sign(cmd_vel.angular.z) * 0.1
+        cmd_vel.linear.x = 0.1
         gate_fov_bound = self.calculate_gate_fov_bound(left_gate_x, right_gate_x)
         
         self.get_logger().info(f"gate_fov_bound: {gate_fov_bound}")
 
-        # The idea here, is that the closer we get to the gates, they will move closer towards the bounds of our FOV
-        if gate_fov_bound > 0.7:
-            self.state = State.Push
+        # to be between gate is to be done with the job
+        if gate_fov_bound > 0.95:
             self.pre_push_time = self.get_clock().now()
+            self.state = State.Passing_Through
+
         return cmd_vel
     
     def pass_through(self):
         cmd_vel = Twist()
-        cmd_vel.linear.x = 0.5
+        cmd_vel.linear.x = 0.1
         if (self.get_clock().now() - self.pre_push_time).nanoseconds // 1e9 > 2:
             self.state = State.PassedThrough
         self.get_logger().info(f"{(self.get_clock().now() - self.pre_push_time).nanoseconds // 1e9}")
@@ -185,7 +147,7 @@ class GateTask(Node):
         self.destroy_node()
 
 rclpy.init()
-gate_task = GateTask()
-rclpy.spin(gate_task)
-gate_task.destroy_node()
+state_machine = StateMachine()
+rclpy.spin(state_machine)
+state_machine.destroy_node()
 rclpy.shutdown()

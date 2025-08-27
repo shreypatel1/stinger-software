@@ -20,7 +20,8 @@ STARBOARD_ESC_PIN = 12  # GPIO12 for starboard motor
 PWM_FREQUENCY = 50  # Standard servo ESC frequency (50 Hz)
 INITIAL_PULSE_WIDTH = 1000  # First pulse width (1.0 ms)
 MIN_PULSE_WIDTH = 1100  # Microseconds (1.1 ms)
-MAX_PULSE_WIDTH = 1800  # Microseconds (1.8 ms)
+MAX_PULSE_WIDTH = 1900  # Microseconds (1.9 ms)
+NEUTRAL_PULSE_WIDTH = 1500 # Microseconds (1.5 ms)
 
 class ESCControlNode(Node):
     def __init__(self):
@@ -68,7 +69,9 @@ class ESCControlNode(Node):
     
     def map_thrust_to_pulse(self, thrust):
         # Map thrust [0, 100] to pulse width [MIN_PULSE_WIDTH, MAX_PULSE_WIDTH]
-        return MIN_PULSE_WIDTH + (thrust * (MAX_PULSE_WIDTH - MIN_PULSE_WIDTH) / 100)
+        unidirectional = MIN_PULSE_WIDTH + (thrust * (MAX_PULSE_WIDTH - MIN_PULSE_WIDTH) / 100)
+        bidirectional = (thrust / 100) * (MAX_PULSE_WIDTH - NEUTRAL_PULSE_WIDTH) + NEUTRAL_PULSE_WIDTH
+        return bidirectional
     
     def destroy_node(self):
         # Stop ESC signals

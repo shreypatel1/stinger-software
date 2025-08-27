@@ -13,6 +13,7 @@ find_package(geometry_msgs REQUIRED)
 rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/ParametricLine.msg"
   "msg/Goal.msg"
+  "msg/Gate.msg"
   DEPENDENCIES geometry_msgs
 )
 
