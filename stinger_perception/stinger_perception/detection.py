@@ -35,6 +35,7 @@ class Detection(Node):
         """Process the camera feed to detect red, green, and yellow buoys."""
         frame = self.bridge.imgmsg_to_cv2(msg, 'bgr8') # Opencv wants BGR, but ROS defaults RGB
         self.hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV) # Separating Hue, Saturation, & Value isolates color regardless of lighting
+        self.gate_detection_cv()
     
     def find_circles(self, mask):
         """Find circular contours in a binary mask."""
@@ -43,7 +44,7 @@ class Detection(Node):
 
         for cnt in contours:
             (x, y), radius = cv2.minEnclosingCircle(cnt)
-            if 40 < radius:  # Filter small objects (radius greater than 40 pixels rn, tune as you go)
+            if 20 < radius:  # Filter small objects (radius greater than 40 pixels rn, tune as you go)
                 detected.append((int(x), int(y), int(radius)))
 
         detected_sorted = sorted(detected, key=lambda x: x[2], reverse=True)
@@ -59,7 +60,7 @@ class Detection(Node):
 
         if len(self.hsv) == 0:
             self.get_logger().info("Waitng for frame")
-            return [], []
+            return
 
         # Create masks
         red_mask = cv2.inRange(self.hsv, red_lower, red_upper)
@@ -69,11 +70,21 @@ class Detection(Node):
         red_buoy_list = self.find_circles(red_mask)
         green_buoy_list = self.find_circles(green_mask)
 
-        red_gate_x = red_buoy_list[0][0] 
-        green_gate_x = green_buoy_list[0][0]
-        msg: Gate = Gate()
-        msg.red_x = red_gate_x
-        msg.green_x = green_gate_x
+        self.get_logger().info("I AM HERE!!!!!!")
+        self.get_logger().info(f"Red buoys: {red_buoy_list}")
+        self.get_logger().info(f"Green buoys: {green_buoy_list}")
+
+        msg = Gate()
+        if len(red_buoy_list) > 0:
+            msg.red_x = float(red_buoy_list[0][0])
+        else:
+            msg.red_x = -1.0
+
+        if len(green_buoy_list) > 0:
+            msg.green_x = float(green_buoy_list[0][0])
+        else:
+            msg.green_x = -1.0
+        
         self.gate_pos_pub.publish(msg)
 
 rclpy.init()

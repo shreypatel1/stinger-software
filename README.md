@@ -51,6 +51,7 @@ Autonomy nodes:
     ros2 run stinger_autonomy state_node
     ros2 run stinger_perception perception_node
     ros2 run stinger_controller velocity_controllor
+    ros2 run stinger_controller throttle_controller
 ```
 
 ## Simulation Quick start

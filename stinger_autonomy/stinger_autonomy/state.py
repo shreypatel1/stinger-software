@@ -72,18 +72,14 @@ class StateMachine(Node):
         left_gate_location = self.current_gate_pos.red_x
         right_gate_location = self.current_gate_pos.green_x
 
-        self.get_logger().info(f"{left_gate_location}")
-        self.get_logger().info(f"{right_gate_location}")
+        self.get_logger().info(f"Red: {left_gate_location}, Green: {right_gate_location}")
 
-        if len(left_gate_location)==0 or len(right_gate_location)==0:
+        if left_gate_location < 0 or right_gate_location < 0:
             return
         
         deg_per_pixel = self.hfov / self.image_width
 
-        left_gate_x = left_gate_location[0][0]
-        right_gate_x = right_gate_location[0][0]
-
-        mid_x = (right_gate_x + left_gate_x) / 2
+        mid_x = (right_gate_location + left_gate_location) / 2
         mid_x_img = self.image_width // 2
         diff_mid = mid_x_img - mid_x
 
@@ -93,7 +89,7 @@ class StateMachine(Node):
         '''
         turn_angle = diff_mid * deg_per_pixel
 
-        self.get_logger().info(f"{turn_angle}")
+        self.get_logger().info(f"Turn angle: {turn_angle}")
 
         if abs(cmd_vel.angular.z) > 0.1:
             cmd_vel.angular.z = np.sign(cmd_vel.angular.z) * 0.1
@@ -107,14 +103,12 @@ class StateMachine(Node):
         left_gate_location = self.current_gate_pos.red_x
         right_gate_location = self.current_gate_pos.green_x
 
-        if len(left_gate_location)==0 or len(right_gate_location)==0:
+        if left_gate_location is None or right_gate_location is None:
             return
         
         deg_per_pixel = self.hfov / self.image_width
-        left_gate_x = left_gate_location[0][0]
-        right_gate_x = right_gate_location[0][0]
 
-        mid_x = (right_gate_x + left_gate_x) / 2
+        mid_x = (right_gate_location + left_gate_location) / 2
         mid_x_img = self.image_width // 2
         diff_mid = mid_x_img - mid_x
         turn_angle = diff_mid * deg_per_pixel
@@ -123,7 +117,7 @@ class StateMachine(Node):
         if abs(cmd_vel.angular.z) > 0.1:
             cmd_vel.angular.z = np.sign(cmd_vel.angular.z) * 0.1
         cmd_vel.linear.x = 0.1
-        gate_fov_bound = self.calculate_gate_fov_bound(left_gate_x, right_gate_x)
+        gate_fov_bound = self.calculate_gate_fov_bound(left_gate_location, right_gate_location)
         
         self.get_logger().info(f"gate_fov_bound: {gate_fov_bound}")
 
@@ -137,7 +131,7 @@ class StateMachine(Node):
     def pass_through(self):
         cmd_vel = Twist()
         cmd_vel.linear.x = 0.1
-        if (self.get_clock().now() - self.pre_push_time).nanoseconds // 1e9 > 2:
+        if (self.get_clock().now() - self.pre_push_time).nanoseconds // 1e9 > 20:
             self.state = State.PassedThrough
         self.get_logger().info(f"{(self.get_clock().now() - self.pre_push_time).nanoseconds // 1e9}")
         return cmd_vel
