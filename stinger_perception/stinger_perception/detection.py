@@ -36,41 +36,29 @@ class Detection(Node):
         frame = self.bridge.imgmsg_to_cv2(msg, 'bgr8') # Opencv wants BGR, but ROS defaults RGB
         self.hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV) # Separating Hue, Saturation, & Value isolates color regardless of lighting
         self.gate_detection_cv()
-    
-    def find_circles(self, mask):
-        """Find circular contours in a binary mask."""
-        contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        detected = []
-
-        for cnt in contours:
-            (x, y), radius = cv2.minEnclosingCircle(cnt)
-            if 20 < radius:  # Filter small objects (radius greater than 40 pixels rn, tune as you go)
-                detected.append((int(x), int(y), int(radius)))
-
-        detected_sorted = sorted(detected, key=lambda x: x[2], reverse=True)
-        return detected_sorted
 
     def gate_detection_cv(self):
         """Publish the horizontal location of the gate"""
-        # Define color ranges for red, green, and yellow in HSV
-        red_lower = np.array([0, 120, 70])
-        red_upper = np.array([10, 255, 255])
-        green_lower = np.array([60, 80, 80])
-        green_upper = np.array([80, 255, 255])
+        
+        # TODO: 6.1.a Understanding HSV
+        # Define color ranges for red and green in HSV
+        ### STUDENT CODE HERE
+
+        ### END STUDENT CODE
 
         if len(self.hsv) == 0:
             self.get_logger().info("Waitng for frame")
             return
 
-        # Create masks
-        red_mask = cv2.inRange(self.hsv, red_lower, red_upper)
-        green_mask = cv2.inRange(self.hsv, green_lower, green_upper)
+        # TODO: 6.1.b Masking 
+        ### STUDENT CODE HERE
+
+        ### END STUDENT CODE
 
         # Find contours for each color
         red_buoy_list = self.find_circles(red_mask)
         green_buoy_list = self.find_circles(green_mask)
 
-        self.get_logger().info("I AM HERE!!!!!!")
         self.get_logger().info(f"Red buoys: {red_buoy_list}")
         self.get_logger().info(f"Green buoys: {green_buoy_list}")
 
@@ -86,6 +74,25 @@ class Detection(Node):
             msg.green_x = -1.0
         
         self.gate_pos_pub.publish(msg)
+
+    def find_circles(self, mask):
+        """Find circular contours in a binary mask."""
+
+        # TODO: 6.1.c Contours
+        ### STUDENT CODE HERE
+
+        ### END STUDENT CODE
+        detected = []
+
+        # TODO: 6.1.d Understanding and tune pixel radius
+        for cnt in contours:
+            (x, y), radius = cv2.minEnclosingCircle(cnt)
+            ### STUDENT CODE HERE
+
+            ### END STUDENT CODE
+
+        detected_sorted = sorted(detected, key=lambda x: x[2], reverse=True)
+        return detected_sorted
 
 rclpy.init()
 detection_node = Detection()

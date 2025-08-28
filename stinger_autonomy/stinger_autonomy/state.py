@@ -94,8 +94,10 @@ class StateMachine(Node):
         if abs(cmd_vel.angular.z) > 0.1:
             cmd_vel.angular.z = np.sign(cmd_vel.angular.z) * 0.1
 
-        if abs(turn_angle) < 0.1:
-            self.state = State.Approaching
+        # TODO: 7.1.a Transition condition to move out of Search State
+        ### STUDENT CODE HERE
+
+        ### END STUDENT CODE
         return cmd_vel
     
     def approach(self):
@@ -122,9 +124,11 @@ class StateMachine(Node):
         self.get_logger().info(f"gate_fov_bound: {gate_fov_bound}")
 
         # to be between gate is to be done with the job
-        if gate_fov_bound > 0.95:
-            self.pre_push_time = self.get_clock().now()
-            self.state = State.Passing_Through
+
+        # TODO: 7.1.b Transition condition to move out of Approach State
+        ### STUDENT CODE HERE
+
+        ### END STUDENT CODE
 
         return cmd_vel
     
