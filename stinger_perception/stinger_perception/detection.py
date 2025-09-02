@@ -103,7 +103,7 @@ class Detection(Node):
         ### END STUDENT CODE
         detected = []
 
-        # TODO: 6.1.d Understanding and tune pixel radius
+        # TODO: 6.1.d Understanding and tuning pixel radius
         for cnt in contours:
             (x, y), radius = cv2.minEnclosingCircle(cnt)
             cv2.circle(self.frame, (int(x), int(y)), int(radius), (255, 0, 0), 3)

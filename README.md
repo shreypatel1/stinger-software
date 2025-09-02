@@ -2,7 +2,7 @@
 Stinger Tug Core Software
 
 ## Overview
-![architecture](resources/architecture.excalidraw.svg)
+![architecture](resources/stinger_architecture.svg)
 
 ### A Closer look at the Overall structure
 
