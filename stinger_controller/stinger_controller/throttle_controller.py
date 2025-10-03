@@ -8,9 +8,9 @@ class ThrottleController(Node):
     def __init__(self):
         super().__init__('throttle_controller')
 
-        # Physical parameters
-        self.thruster_distance = 0.153  # Distance from center to each thruster
-
+        # Physical parameters # FIXME: Check correct value
+        self.thruster_distance = 0.0635  # Perpendicular distance from center to each thruster line of action (meters)
+        # 0.153m from center to thruster (diagonal)
         # ROS2 Subscriptions & Publishers
         self.create_subscription(
             WrenchStamped,
@@ -51,12 +51,14 @@ class ThrottleController(Node):
             [-d,   d]
         ])
 
-        J_inv = np.linalg.inv(J)
-        wrench_vec = np.array([fx, torque_z])
-        motor_forces = J_inv @ wrench_vec
-
-        u_port = motor_forces[0]
-        u_stbd = motor_forces[1]
+        # J_inv = np.linalg.inv(J)
+        # wrench_vec = np.array([fx, torque_z])
+        # motor_forces = J_inv @ wrench_vec
+        # FIXME: Check equations above for correctness
+        # u_port = motor_forces[0]
+        # u_stbd = motor_forces[1]
+        u_port = (fx / 2) - (torque_z / (2 * d))
+        u_stbd = (fx / 2) + (torque_z / (2 * d))
 
         # Optional: saturate to maximum thruster output
         max_thrust = 30.0
