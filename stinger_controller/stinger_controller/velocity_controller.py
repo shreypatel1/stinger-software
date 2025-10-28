@@ -128,7 +128,8 @@ class VelocityController(Node):
         # TODO: 5.1.f Yaw Control
         ### STUDENT CODE HERE
         desired_yaw = self.cmd_vel.angular.z
-        error_yaw = desired_yaw - msg.twist.twist.angular.z
+        current_yaw = msg.twist.twist.angular.z
+        error_yaw = desired_yaw - current_yaw
         error_yaw = (error_yaw + math.pi) % (2 * math.pi) - math.pi  # Normalize to [-pi, pi]
 
         P_yaw = self.Kp_yaw * error_yaw
