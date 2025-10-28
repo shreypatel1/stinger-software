@@ -43,12 +43,12 @@ class VelocityController(Node):
         
         # TODO: 5.1.g Controller Tuning
         ### STUDENT CODE HERE
-        self.Kp_surge = 3
-        self.Ki_surge = 4
-        self.Kd_surge = 5
-        self.Kp_yaw = 6
-        self.Ki_yaw = 7
-        self.Kd_yaw = 8
+        self.Kp_surge = 1.5
+        self.Ki_surge = 0
+        self.Kd_surge = 0
+        self.Kp_yaw = 2
+        self.Ki_yaw = 0
+        self.Kd_yaw = 0
         ### END STUDENT CODE
 
         # Initialize variables - self added
@@ -84,11 +84,6 @@ class VelocityController(Node):
         error_surge = 0
         # TODO: 5.1.b Error Calculation
         ### STUDENT CODE HERE
-        # Extract quaternion
-        q = msg.pose.pose.orientation
-        quaternion = [q.x, q.y, q.z, q.w]
-        # Convert quaternion to yaw
-        _, _, current_yaw = tf_transformations.euler_from_quaternion(quaternion)
 
         # Get world-frame velocities
         vx = msg.twist.twist.linear.x
@@ -133,19 +128,19 @@ class VelocityController(Node):
         # TODO: 5.1.f Yaw Control
         ### STUDENT CODE HERE
         desired_yaw = self.cmd_vel.angular.z
-        error_yaw = desired_yaw - current_yaw
+        error_yaw = desired_yaw - msg.twist.twist.angular.z
         error_yaw = (error_yaw + math.pi) % (2 * math.pi) - math.pi  # Normalize to [-pi, pi]
 
         P_yaw = self.Kp_yaw * error_yaw
 
+        # Integral with anti-windup
         self.I_yaw += self.Ki_yaw * error_yaw * dt
-        # Anti-windup for yaw integral
         self.I_yaw = max(min(self.I_yaw, 10.0), -10.0) # adjust bounds as needed
 
-        # Derivative calculation - Yaw
+        # Derivative (with optional low-pass filter)
         D_yaw = 0
         raw_derivative_yaw = 0.0 if dt == 0 else (error_yaw - self.prev_error_yaw) / dt
-        if self.use_derivative_filter: # Low-pass filter on derivative term
+        if self.use_derivative_filter:
             D_yaw = self.Kd_yaw * (self.D_alpha * raw_derivative_yaw + (1 - self.D_alpha) * self.D_yaw_prev)
             self.D_yaw_prev = D_yaw
         else:
