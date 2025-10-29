@@ -43,12 +43,12 @@ class VelocityController(Node):
         
         # TODO: 5.1.g Controller Tuning
         ### STUDENT CODE HERE
-        self.Kp_surge = 1.5
-        self.Ki_surge = 0
-        self.Kd_surge = 0
-        self.Kp_yaw = 2
+        self.Kp_surge = 35
+        self.Ki_surge = 5
+        self.Kd_surge = 20
+        self.Kp_yaw = 50
         self.Ki_yaw = 0
-        self.Kd_yaw = 0
+        self.Kd_yaw = 10
         ### END STUDENT CODE
 
         # Initialize variables - self added
@@ -79,18 +79,22 @@ class VelocityController(Node):
         output_force.header = msg.header
         now = Time.from_msg(msg.header.stamp) if self.use_sim_time else self.get_clock().now()
         dt = (now - self.prev_time).nanoseconds / 1e9
+        # Guard dt to avoid division by zero / huge derivative spikes
+        if dt <= 0.0:
+            dt = 1e-6
         self.prev_time = now
 
         error_surge = 0
         # TODO: 5.1.b Error Calculation
         ### STUDENT CODE HERE
+        current_yaw = msg.twist.twist.angular.z
 
         # Get world-frame velocities
         vx = msg.twist.twist.linear.x
         vy = msg.twist.twist.linear.y
 
-        # Project onto boat's forward direction
-        current_velocity = vx * math.cos(current_yaw) + vy * math.sin(current_yaw) # Dot product - velocity in boat's forward direction
+        # Project onto boat's forward direction - magnitude
+        current_velocity =  math.sqrt(vx**2 + vy**2)
         
         desired_velocity = self.cmd_vel.linear.x
         error_surge = desired_velocity - current_velocity
@@ -128,9 +132,8 @@ class VelocityController(Node):
         # TODO: 5.1.f Yaw Control
         ### STUDENT CODE HERE
         desired_yaw = self.cmd_vel.angular.z
-        current_yaw = msg.twist.twist.angular.z
         error_yaw = desired_yaw - current_yaw
-        error_yaw = (error_yaw + math.pi) % (2 * math.pi) - math.pi  # Normalize to [-pi, pi]
+        # error_yaw = (error_yaw + math.pi) % (2 * math.pi) - math.pi  # Normalize to [-pi, pi]
 
         P_yaw = self.Kp_yaw * error_yaw
 

@@ -9,7 +9,7 @@ class ThrottleController(Node):
         super().__init__('throttle_controller')
 
         # Physical parameters # FIXME: Check correct value
-        self.thruster_distance = 0.0635  # Perpendicular distance from center to each thruster line of action (meters)
+        self.thruster_distance = 0.153  # Perpendicular distance from center to each thruster line of action (meters)
         # 0.153m from center to thruster (diagonal)
         # ROS2 Subscriptions & Publishers
         self.create_subscription(
