@@ -20,6 +20,8 @@ class StateMachine(Node):
 
         self.image_width = 1280
         self.hfov = 1.09956
+        self.mid_x_img = self.image_width // 2
+        self.deg_per_pixel = self.hfov / self.image_width
         self.angular_correction_factor = 1.0
 
         self.previous_state = None
@@ -76,28 +78,32 @@ class StateMachine(Node):
 
         if left_gate_location < 0 or right_gate_location < 0:
             return
-        
-        deg_per_pixel = self.hfov / self.image_width
 
         mid_x = (right_gate_location + left_gate_location) / 2
-        mid_x_img = self.image_width // 2
-        diff_mid = mid_x_img - mid_x
+        diff_mid = self.mid_x_img - mid_x
 
         '''
         If we are far too left, want to turn right, this will be a negative value
         If we are far too right, want to turn left, this will be a positive value
         '''
-        turn_angle = diff_mid * deg_per_pixel
+        turn_angle = diff_mid * self.deg_per_pixel
 
         self.get_logger().info(f"Turn angle: {turn_angle}")
 
+        # ADDITIONS
+        # cmd_vel.angular.z = self.angular_correction_factor * turn_angle
+        # cmd_vel.linear.x = 0.0
+
         # TODO: POSSIBLY INCREASE THE THRESHOLD
-        if abs(cmd_vel.angular.z) > 0.1:
-            cmd_vel.angular.z = np.sign(cmd_vel.angular.z) * 0.1
+        if abs(cmd_vel.angular.z) > 0.2:
+            cmd_vel.angular.z = np.sign(cmd_vel.angular.z) * 0.2
 
         # TODO: 7.1.a Transition condition to move out of Search State
         ### STUDENT CODE HERE
-
+        gate_fov_bound = self.calculate_gate_fov_bound(left_gate_location, right_gate_location)
+        if gate_fov_bound >= 0.2:
+            self.state = State.Approaching
+            self.get_logger().info(f"gate_fov_bound: {gate_fov_bound}")
         ### END STUDENT CODE
         return cmd_vel
     
@@ -108,17 +114,14 @@ class StateMachine(Node):
 
         if left_gate_location is None or right_gate_location is None:
             return
-        
-        deg_per_pixel = self.hfov / self.image_width
 
         mid_x = (right_gate_location + left_gate_location) / 2
-        mid_x_img = self.image_width // 2
-        diff_mid = mid_x_img - mid_x
-        turn_angle = diff_mid * deg_per_pixel
+        diff_mid = self.mid_x_img - mid_x
+        turn_angle = diff_mid * self.deg_per_pixel
 
         cmd_vel.angular.z = self.angular_correction_factor * turn_angle
-        if abs(cmd_vel.angular.z) > 0.1:
-            cmd_vel.angular.z = np.sign(cmd_vel.angular.z) * 0.1
+        if abs(cmd_vel.angular.z) > 0.2:
+            cmd_vel.angular.z = np.sign(cmd_vel.angular.z) * 0.2
         cmd_vel.linear.x = 0.1
         gate_fov_bound = self.calculate_gate_fov_bound(left_gate_location, right_gate_location)
         
@@ -128,7 +131,9 @@ class StateMachine(Node):
 
         # TODO: 7.1.b Transition condition to move out of Approach State
         ### STUDENT CODE HERE
-
+        if gate_fov_bound >= 0.8:
+            self.state = State.Passing_Through
+            self.pre_push_time = self.get_clock().now()
         ### END STUDENT CODE
 
         return cmd_vel
@@ -136,7 +141,7 @@ class StateMachine(Node):
     def pass_through(self):
         cmd_vel = Twist()
         cmd_vel.linear.x = 0.1
-        if (self.get_clock().now() - self.pre_push_time).nanoseconds // 1e9 > 20:
+        if (self.get_clock().now() - self.pre_push_time).nanoseconds // 1e9 > 10: # TODO: ADJUST TIME AS NEEDED (OG 20s)
             self.state = State.PassedThrough
         self.get_logger().info(f"{(self.get_clock().now() - self.pre_push_time).nanoseconds // 1e9}")
         return cmd_vel
