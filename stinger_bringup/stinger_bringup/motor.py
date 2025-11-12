@@ -38,9 +38,9 @@ class ESCControlNode(Node):
         self.pi.set_mode(STARBOARD_ESC_PIN, pigpio.OUTPUT)
         
         # Initialize ESCs with first pulse width of 1000us
-        self.pi.set_servo_pulsewidth(PORT_ESC_PIN, INITIAL_PULSE_WIDTH)
-        self.pi.set_servo_pulsewidth(STARBOARD_ESC_PIN, INITIAL_PULSE_WIDTH)
-        time.sleep(1)  # Allow ESC to register initial pulse
+        self.pi.set_servo_pulsewidth(PORT_ESC_PIN, NEUTRAL_PULSE_WIDTH)
+        self.pi.set_servo_pulsewidth(STARBOARD_ESC_PIN, NEUTRAL_PULSE_WIDTH)
+        time.sleep(2)  # Allow ESC to register initial pulse
 
         # ROS2 subscriptions
         self.port_subscription = self.create_subscription(
