@@ -58,7 +58,7 @@ class ESCControlNode(Node):
     
     def set_pwm_thrust(self, pin, thrust_value):
         # Ensure thrust value is within bounds [0, 100]
-        thrust_value = max(0.0, min(100.0, thrust_value))
+        thrust_value = max(-100.0, min(100.0, thrust_value))
         
         # Convert thrust value to pulse width
         pulse_width = self.map_thrust_to_pulse(thrust_value)
