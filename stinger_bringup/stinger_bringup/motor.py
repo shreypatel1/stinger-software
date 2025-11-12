@@ -42,6 +42,20 @@ class ESCControlNode(Node):
         self.pi.set_servo_pulsewidth(STARBOARD_ESC_PIN, NEUTRAL_PULSE_WIDTH)
         time.sleep(2)  # Allow ESC to register initial pulse
 
+        # Quick throttle sweep for arming
+        self.pi.set_servo_pulsewidth(PORT_ESC_PIN, MAX_PULSE_WIDTH)
+        self.pi.set_servo_pulsewidth(STARBOARD_ESC_PIN, MAX_PULSE_WIDTH)
+        time.sleep(1)
+
+        self.pi.set_servo_pulsewidth(PORT_ESC_PIN, MIN_PULSE_WIDTH)
+        self.pi.set_servo_pulsewidth(STARBOARD_ESC_PIN, MIN_PULSE_WIDTH)
+        time.sleep(1)
+
+        # Return to neutral
+        self.pi.set_servo_pulsewidth(PORT_ESC_PIN, NEUTRAL_PULSE_WIDTH)
+        self.pi.set_servo_pulsewidth(STARBOARD_ESC_PIN, NEUTRAL_PULSE_WIDTH)
+        time.sleep(1)
+
         # ROS2 subscriptions
         self.port_subscription = self.create_subscription(
             Float64, '/thrusters/left/thrust', self.port_callback, 10)
