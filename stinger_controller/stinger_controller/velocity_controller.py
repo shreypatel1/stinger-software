@@ -67,8 +67,6 @@ class VelocityController(Node):
         self.prev_time = None
         self.prev_error_surge = 0
         self.prev_error_yaw = 0
-        self.I_surge_total = 0
-        self.I_yaw_total = 0
 
     def cmd_vel_callback(self, msg: Twist):
         self.cmd_vel = msg
