@@ -18,7 +18,7 @@ import time
 PORT_ESC_PIN = 13  # GPIO13 for port motor
 STARBOARD_ESC_PIN = 12  # GPIO12 for starboard motor
 PWM_FREQUENCY = 50  # Standard servo ESC frequency (50 Hz)
-INITIAL_PULSE_WIDTH = 1000  # First pulse width (1.0 ms)
+INITIAL_PULSE_WIDTH = 1500  # First pulse width (set to neutral 1.5 ms)
 MIN_PULSE_WIDTH = 1100  # Microseconds (1.1 ms)
 MAX_PULSE_WIDTH = 1900  # Microseconds (1.9 ms)
 NEUTRAL_PULSE_WIDTH = 1500 # Microseconds (1.5 ms)
@@ -39,7 +39,7 @@ class ESCControlNode(Node):
         
         # Initialize ESCs with first pulse width of 1000us
         self.pi.set_servo_pulsewidth(PORT_ESC_PIN, INITIAL_PULSE_WIDTH)
-        time.sleep(1)  # Allow ESC to register initial pulse
+        time.sleep(2)  # Allow ESC to register initial pulse
 
         # # Quick throttle sweep for arming
         # mid_throttle = NEUTRAL_PULSE_WIDTH - (MAX_PULSE_WIDTH - NEUTRAL_PULSE_WIDTH) * 0.4
@@ -52,7 +52,7 @@ class ESCControlNode(Node):
 
         # Initialize ESCs with first pulse width of 1000us
         self.pi.set_servo_pulsewidth(STARBOARD_ESC_PIN, INITIAL_PULSE_WIDTH)
-        time.sleep(1)  # Allow ESC to register initial pulse
+        time.sleep(2)  # Allow ESC to register initial pulse
 
         # # Quick throttle sweep for arming
         # mid_throttle = NEUTRAL_PULSE_WIDTH - (MAX_PULSE_WIDTH - NEUTRAL_PULSE_WIDTH) * 0.4
