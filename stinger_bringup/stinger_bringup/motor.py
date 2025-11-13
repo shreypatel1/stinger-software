@@ -58,7 +58,8 @@ class ESCControlNode(Node):
     
     def set_pwm_thrust(self, pin, thrust_value):
         # Ensure thrust value is within bounds [0, 100]
-        thrust_value = max(-100.0, min(100.0, thrust_value))
+        # thrust_value = max(-100.0, min(100.0, thrust_value))
+        thrust_value = max(0, min(100.0, thrust_value))
         
         # Convert thrust value to pulse width
         pulse_width = self.map_thrust_to_pulse(thrust_value)
@@ -71,7 +72,8 @@ class ESCControlNode(Node):
         # Map thrust [0, 100] to pulse width [MIN_PULSE_WIDTH, MAX_PULSE_WIDTH]
         unidirectional = MIN_PULSE_WIDTH + (thrust * (MAX_PULSE_WIDTH - MIN_PULSE_WIDTH) / 100)
         bidirectional = (thrust / 100) * (MAX_PULSE_WIDTH - NEUTRAL_PULSE_WIDTH) + NEUTRAL_PULSE_WIDTH
-        return bidirectional
+        return unidirectional
+        # return bidirectional  --- IGNORE ---
     
     def destroy_node(self):
         # Stop ESC signals
