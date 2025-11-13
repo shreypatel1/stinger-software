@@ -37,31 +37,31 @@ class ESCControlNode(Node):
         self.pi.set_mode(PORT_ESC_PIN, pigpio.OUTPUT)
         self.pi.set_mode(STARBOARD_ESC_PIN, pigpio.OUTPUT)
         
-        # Initialize ESCs with first pulse width of 1000us - changed to 1500us
-        self.pi.set_servo_pulsewidth(PORT_ESC_PIN, NEUTRAL_PULSE_WIDTH)
+        # Initialize ESCs with first pulse width of 1000us
+        self.pi.set_servo_pulsewidth(PORT_ESC_PIN, INITIAL_PULSE_WIDTH)
         time.sleep(1)  # Allow ESC to register initial pulse
 
         # Quick throttle sweep for arming
-        mid_throttle = NEUTRAL_PULSE_WIDTH + (MAX_PULSE_WIDTH - NEUTRAL_PULSE_WIDTH) * 0.4
+        mid_throttle = NEUTRAL_PULSE_WIDTH - (MAX_PULSE_WIDTH - NEUTRAL_PULSE_WIDTH) * 0.4
         self.pi.set_servo_pulsewidth(PORT_ESC_PIN, mid_throttle)
-        time.sleep(2)
+        time.sleep(1)
 
         # Return to neutral
-        self.pi.set_servo_pulsewidth(PORT_ESC_PIN, NEUTRAL_PULSE_WIDTH - 200)
-        time.sleep(2)
+        self.pi.set_servo_pulsewidth(PORT_ESC_PIN, INITIAL_PULSE_WIDTH)
+        time.sleep(1)
 
-        # Initialize ESCs with first pulse width of 1000us - changed to 1500us
-        self.pi.set_servo_pulsewidth(STARBOARD_ESC_PIN, NEUTRAL_PULSE_WIDTH)
-        time.sleep(2)  # Allow ESC to register initial pulse
+        # Initialize ESCs with first pulse width of 1000us
+        self.pi.set_servo_pulsewidth(STARBOARD_ESC_PIN, INITIAL_PULSE_WIDTH)
+        time.sleep(1)  # Allow ESC to register initial pulse
 
         # Quick throttle sweep for arming
-        mid_throttle = NEUTRAL_PULSE_WIDTH + (MAX_PULSE_WIDTH - NEUTRAL_PULSE_WIDTH) * 0.4
+        mid_throttle = NEUTRAL_PULSE_WIDTH - (MAX_PULSE_WIDTH - NEUTRAL_PULSE_WIDTH) * 0.4
         self.pi.set_servo_pulsewidth(STARBOARD_ESC_PIN, mid_throttle)
-        time.sleep(2)
+        time.sleep(1)
 
         # Return to neutral
-        self.pi.set_servo_pulsewidth(STARBOARD_ESC_PIN, NEUTRAL_PULSE_WIDTH - 200)
-        time.sleep(2)
+        self.pi.set_servo_pulsewidth(STARBOARD_ESC_PIN, INITIAL_PULSE_WIDTH)
+        time.sleep(1)
 
         # ROS2 subscriptions
         self.port_subscription = self.create_subscription(
