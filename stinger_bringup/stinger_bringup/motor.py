@@ -21,7 +21,7 @@ PWM_FREQUENCY = 50  # Standard servo ESC frequency (50 Hz)
 INITIAL_PULSE_WIDTH = 1000  # First pulse width (set to neutral 1.0 ms)
 MIN_PULSE_WIDTH = 1148  # Microseconds (1.1 ms)
 MAX_PULSE_WIDTH = 1832  # Microseconds (1.9 ms)
-NEUTRAL_PULSE_WIDTH = 1490 # Microseconds (1.5 ms)
+NEUTRAL_PULSE_WIDTH = 1488 # Microseconds (1.5 ms)
 
 class ESCControlNode(Node):
     def __init__(self):
