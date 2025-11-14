@@ -40,7 +40,7 @@ class ImuRepublisher(Node):
                 lookup_time = Time()
             else:
                 lookup_time = Time.from_msg(msg.header.stamp)
-
+            # Lookup transform from the IMU frame into our robot's imu_link
             transform = self.tf_buffer.lookup_transform(
                 target_frame='imu_link',
                 source_frame=msg.header.frame_id,
@@ -60,7 +60,18 @@ class ImuRepublisher(Node):
                 self.get_logger().warning(
                     f"Unexpected error during TF lookup for '{msg.header.frame_id}': {e}"
                 )
-            return None
+
+            # As a robust fallback for bringup/debugging, publish the raw IMU
+            # message re-stamped into `imu_link` so the EKF receives measurements
+            # even when the TF tree isn't ready. This avoids starving the EKF and
+            # allows diagnosing TF issues separately.
+            fallback = Imu()
+            fallback.header.stamp = msg.header.stamp
+            fallback.header.frame_id = 'imu_link'
+            fallback.orientation = msg.orientation
+            fallback.angular_velocity = msg.angular_velocity
+            fallback.linear_acceleration = msg.linear_acceleration
+            return fallback
 
         # Extract transform rotation
         q = transform.transform.rotation
@@ -81,7 +92,7 @@ class ImuRepublisher(Node):
 
         transformed_msg = Imu()
         transformed_msg.header.stamp = msg.header.stamp
-        # Notice that the new frame is now in our base_link frame as desired
+        # Notice that the new frame is now in our imu_link frame as desired
         transformed_msg.header.frame_id = 'imu_link'
         transformed_msg.orientation.x = transformed_orientation[0]
         transformed_msg.orientation.y = transformed_orientation[1]
@@ -99,7 +110,9 @@ class ImuRepublisher(Node):
     def imu_callback(self, msg: Imu):
         msg_base_link: Imu = self.transfrom_imu(msg)
         if msg_base_link is None:
-            self.get_logger().warn("Failed to get transform, skipping")
+            # transfrom_imu now returns a fallback message instead of None,
+            # so this branch should not happen. Keep a defensive check.
+            self.get_logger().warning("Failed to transform IMU and no fallback available, skipping")
             return
         q = msg_base_link.orientation
         quat = [q.x, q.y, q.z, q.w]
@@ -113,8 +126,8 @@ class ImuRepublisher(Node):
         msg_base_link.linear_acceleration.z = acceleration_world[2]
 
         msg_base_link.angular_velocity.x = angular_velocity[0]
-        msg_base_link.angular_velocity.x = angular_velocity[1]
-        msg_base_link.angular_velocity.x = angular_velocity[2]
+        msg_base_link.angular_velocity.y = angular_velocity[1]
+        msg_base_link.angular_velocity.z = angular_velocity[2]
         self.imu_pub.publish(msg_base_link)
 
 def main(args=None):
