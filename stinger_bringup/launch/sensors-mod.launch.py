@@ -33,17 +33,17 @@ def generate_launch_description():
             executable='camera-node',
             name='camera_node',
         ),
-        # Node(
-        #     package='stinger_bringup',
-        #     executable='filter_scan',
-        #     name='filter_scan',
-        # ),
-        # IncludeLaunchDescription(
-        #     PythonLaunchDescriptionSource([
-        #         PathJoinSubstitution([
-        #             FindPackageShare('sllidar_ros2'),
-        #             'launch',
-        #             'sllidar_c1_launch.py'
-        #         ])
-        #     ]))
+        Node(
+            package='stinger_bringup',
+            executable='filter_scan',
+            name='filter_scan',
+        ),
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource([
+                PathJoinSubstitution([
+                    FindPackageShare('sllidar_ros2'),
+                    'launch',
+                    'sllidar_c1_launch.py'
+                ])
+            ]))
     ])
