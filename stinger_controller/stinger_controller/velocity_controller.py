@@ -74,7 +74,6 @@ class VelocityController(Node):
     def odometry_callback(self, msg: Odometry):
         if not self.prev_time:
             self.prev_time = Time.from_msg(msg.header.stamp) if self.use_sim_time else self.get_clock().now()
-            return
 
         output_force = WrenchStamped()
         output_force.header = msg.header
