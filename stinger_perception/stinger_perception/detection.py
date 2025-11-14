@@ -106,6 +106,9 @@ class Detection(Node):
 
         # TODO: 6.1.c Contours
         ### STUDENT CODE HERE
+        # kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5,5))
+        # mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel, iterations=1)
+        # mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel, iterations=1)
         contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         ### END STUDENT CODE
         detected = []
@@ -115,7 +118,7 @@ class Detection(Node):
             (x, y), radius = cv2.minEnclosingCircle(cnt)
             # cv2.circle(self.frame, (int(x), int(y)), int(radius), (255, 0, 0), 3)
             ### STUDENT CODE HERE
-            if radius >= 10: # Minimum radius threshold
+            if radius >= 20: # Minimum radius threshold
                 cv2.circle(self.frame, (int(x), int(y)), int(radius), (255, 0, 0), 3)
                 detected.append((int(x), int(y), radius))
             ### END STUDENT CODE
