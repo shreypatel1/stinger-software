@@ -70,10 +70,11 @@ class Detection(Node):
 
         # TODO: 6.1.b Masking 
         ### STUDENT CODE HERE
-        red_mask1 = cv2.inRange(self.hsv, self.red_lower, self.red_upper)
-        red_mask2 = cv2.inRange(self.hsv, self.red_lower2, self.red_upper2)
+        hsv_blur = cv2.GaussianBlur(self.hsv, (5,5), 0)
+        red_mask1 = cv2.inRange(hsv_blur, self.red_lower, self.red_upper)
+        red_mask2 = cv2.inRange(hsv_blur, self.red_lower2, self.red_upper2)
         red_mask = cv2.bitwise_or(red_mask1, red_mask2)
-        green_mask = cv2.inRange(self.hsv, self.green_lower, self.green_upper)
+        green_mask = cv2.inRange(hsv_blur, self.green_lower, self.green_upper)
         ### END STUDENT CODE
         
         ### DEV
@@ -118,7 +119,7 @@ class Detection(Node):
             (x, y), radius = cv2.minEnclosingCircle(cnt)
             # cv2.circle(self.frame, (int(x), int(y)), int(radius), (255, 0, 0), 3)
             ### STUDENT CODE HERE
-            if radius >= 20: # Minimum radius threshold
+            if radius >= 40: # Minimum radius threshold
                 cv2.circle(self.frame, (int(x), int(y)), int(radius), (255, 0, 0), 3)
                 detected.append((int(x), int(y), radius))
             ### END STUDENT CODE
