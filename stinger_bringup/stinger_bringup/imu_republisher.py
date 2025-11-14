@@ -5,7 +5,7 @@ from rclpy.time import Time
 from sensor_msgs.msg import Imu
 import tf_transformations
 import numpy as np
-from tf2_ros import TransformListener, Buffer
+from tf2_ros import TransformListener, Buffer, TransformException
 
 
 class ImuRepublisher(Node):
@@ -33,13 +33,33 @@ class ImuRepublisher(Node):
         transform = None
         # Extract transform from imu to base link from tf tree
         try:
+            # Prefer the message timestamp so we get the transform at the
+            # exact time the IMU measurement was taken. Fall back to now()
+            # if t  he message stamp is empty.
+            if msg.header.stamp.sec == 0 and msg.header.stamp.nanosec == 0:
+                lookup_time = Time()
+            else:
+                lookup_time = Time.from_msg(msg.header.stamp)
+
             transform = self.tf_buffer.lookup_transform(
                 target_frame='base_link',
                 source_frame=msg.header.frame_id,
-                time=Time.from_msg(msg.header.stamp),
-                timeout=Duration(seconds=1.0)
+                time=lookup_time,
+                timeout=Duration(seconds=2.0)
             )
         except:
+            # Catch and log TF lookup failures with details for debugging
+            try:
+                raise
+            except TransformException as e:
+                stamp = msg.header.stamp
+                self.get_logger().warning(
+                    f"TF lookup failed for frame '{msg.header.frame_id}' at stamp {stamp.sec}.{stamp.nanosec}: {e}"
+                )
+            except Exception as e:
+                self.get_logger().warning(
+                    f"Unexpected error during TF lookup for '{msg.header.frame_id}': {e}"
+                )
             return None
 
         # Extract transform rotation
