@@ -8,4 +8,10 @@ navsat_transform_node:
         # Use a local Cartesian projection for converting lat/lon -> x/y.
         # This is simpler for bringup and avoids external datum lookups.
         use_local_cartesian: true
+        # During bringup, the node can wait for an explicit datum or an
+        # odometry message on `/odometry/filtered` before publishing
+        # `/odometry/gps`. Disable waiting so the node will convert incoming
+        # GPS messages immediately (useful for testing). In production you
+        # may want this true and call the /datum service to set the origin.
+        wait_for_datum: false
         frequency: 30.0
