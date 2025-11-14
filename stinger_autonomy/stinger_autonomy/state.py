@@ -91,8 +91,8 @@ class StateMachine(Node):
         self.get_logger().info(f"Turn angle: {turn_angle}")
 
         # ADDITIONS
-        # cmd_vel.angular.z = self.angular_correction_factor * turn_angle
-        # cmd_vel.linear.x = 0.0
+        cmd_vel.angular.z = self.angular_correction_factor * turn_angle
+        cmd_vel.linear.x = 0.0
 
         # TODO: POSSIBLY INCREASE THE THRESHOLD
         if abs(cmd_vel.angular.z) > 0.2:
