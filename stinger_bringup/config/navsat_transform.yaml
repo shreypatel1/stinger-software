@@ -5,5 +5,7 @@ navsat_transform_node:
         zero_altitude: false
         publish_filtered_gps: true
         use_odometry_yaw: false
-        use_local_cartesian: false
+        # Use a local Cartesian projection for converting lat/lon -> x/y.
+        # This is simpler for bringup and avoids external datum lookups.
+        use_local_cartesian: true
         frequency: 30.0
