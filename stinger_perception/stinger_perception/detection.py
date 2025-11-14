@@ -31,6 +31,7 @@ class Detection(Node):
         self.bridge = CvBridge()
         self.hsv = None
         self.frame = None
+        self.br = CvBridge()
         self.get_logger().info("Perception node initialized! Let there be light. You can see now.")
 
         # # TODO: 6.1.a Understanding HSV
@@ -120,7 +121,7 @@ class Detection(Node):
                 detected.append((int(x), int(y), radius))
             ### END STUDENT CODE
         # cv2.imshow("original_frame", self.frame)
-        self.detection_img_pub.publish(self.frame)
+        self.detection_img_pub.publish(self.br.cv2_to_imgmsg(self.frame, 'bgr8'))
         detected_sorted = sorted(detected, key=lambda x: x[2], reverse=True)
         return detected_sorted
 
