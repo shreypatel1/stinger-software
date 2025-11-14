@@ -113,7 +113,10 @@ ekf_filter_node:
         ### END STUDENT CODE
 
         # TODO: 4.4.c Add odometry from NavSat transform
-        odom0: /stinger/gps/fix
+        # The navsat_transform_node converts raw GPS (/stinger/gps/fix) into
+        # a local odometry message (default: /odometry/gps). Use that odometry
+        # as the EKF's odom input so the EKF receives position information.
+        odom0: /odometry/gps
         ### STUDENT CODE HERE
         odom0_config: [true, true, false,
                       false, false, false,
