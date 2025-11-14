@@ -9,7 +9,7 @@ class LidarFilterNode(Node):
 
         # Subscribe to original LiDAR scan
         self.scan_subscriber = self.create_subscription(
-            LaserScan, '/stinger/laser/scan', self.lidar_callback, 10)
+            LaserScan, '/scan', self.lidar_callback, 10)
 
         # Publisher for filtered scan
         self.scan_publisher = self.create_publisher(

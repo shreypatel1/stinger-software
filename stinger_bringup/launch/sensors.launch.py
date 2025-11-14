@@ -20,6 +20,11 @@ def generate_launch_description():
         ),
         Node(
             package='stinger_bringup',
+            executable='imu-imu_republisher',
+            name='imu_republisher',
+        ),
+        Node(
+            package='stinger_bringup',
             executable='gps-node',
             name='gps_node',
         ),
@@ -27,6 +32,11 @@ def generate_launch_description():
             package='stinger_bringup',
             executable='camera-node',
             name='camera_node',
+        ),
+        Node(
+            package='stinger_bringup',
+            executable='filter_scan',
+            name='filter_scan',
         ),
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource([
