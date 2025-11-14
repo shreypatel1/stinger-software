@@ -28,17 +28,17 @@ class Detection(Node):
         self.image_sub = self.create_subscription(Image, '/stinger/camera_0/image_raw', self.image_callback, 10)
         self.gate_pos_pub = self.create_publisher(Gate, '/stinger/gate_location', 10)
         self.bridge = CvBridge()
-        self.hsv = np.array([])
-        self.frame = np.zeros([])
+        self.hsv = None
+        self.frame = None
         self.get_logger().info("Perception node initialized! Let there be light. You can see now.")
 
-        # TODO: 6.1.a Understanding HSV
-        # True or False, as my Value approaches 0, the color becomes darker.
-        self.question_1 = True
-        # True or False, as my Saturation increases, the color becomes whiter.
-        self.question_2 = False
-        # [0, 255), what hue value might cyan be.
-        self.question_3 = 90
+        # # TODO: 6.1.a Understanding HSV
+        # # True or False, as my Value approaches 0, the color becomes darker.
+        # self.question_1 = True
+        # # True or False, as my Saturation increases, the color becomes whiter.
+        # self.question_2 = False
+        # # [0, 255), what hue value might cyan be.
+        # self.question_3 = 90
         ### STUDENT CODE HERE
 
         ### END STUDENT CODE
@@ -64,8 +64,8 @@ class Detection(Node):
             return
 
         # Init to zeros
-        red_mask = np.zeros_like(self.hsv)
-        green_mask = np.zeros_like(self.hsv)
+        # red_mask = np.zeros_like(self.hsv)
+        # green_mask = np.zeros_like(self.hsv)
 
         # TODO: 6.1.b Masking 
         ### STUDENT CODE HERE
@@ -75,16 +75,17 @@ class Detection(Node):
         green_mask = cv2.inRange(self.hsv, self.green_lower, self.green_upper)
         ### END STUDENT CODE
         
-        cv2.imshow("Red_mask", red_mask)
-        cv2.imshow("Green_mask", green_mask)
-        cv2.waitKey(1)
+        ### DEV
+        # cv2.imshow("Red_mask", red_mask)
+        # cv2.imshow("Green_mask", green_mask)
+        # cv2.waitKey(1)
 
         # Find contours for each color
         red_buoy_list = self.find_circles(red_mask)
         green_buoy_list = self.find_circles(green_mask)
 
-        self.get_logger().info(f"Red buoys: {red_buoy_list}")
-        self.get_logger().info(f"Green buoys: {green_buoy_list}")
+        # self.get_logger().info(f"Red buoys: {red_buoy_list}")
+        # self.get_logger().info(f"Green buoys: {green_buoy_list}")
 
         msg = Gate()
         if len(red_buoy_list) > 0:
