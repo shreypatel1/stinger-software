@@ -44,11 +44,11 @@ class Detection(Node):
 
         ### END STUDENT CODE
 
-        self.red_lower = np.array([0, 100, 100], dtype=np.uint8)
+        self.red_lower = np.array([0, 150, 150], dtype=np.uint8)
         self.red_upper = np.array([7, 255, 255], dtype=np.uint8)
         self.red_lower2 = np.array([173, 100, 100], dtype=np.uint8)
         self.red_upper2 = np.array([179, 255, 255], dtype=np.uint8)
-        self.green_lower = np.array([55, 50, 50], dtype=np.uint8)
+        self.green_lower = np.array([55, 150, 150], dtype=np.uint8)
         self.green_upper = np.array([70, 255, 255], dtype=np.uint8)
 
     def image_callback(self, msg):
