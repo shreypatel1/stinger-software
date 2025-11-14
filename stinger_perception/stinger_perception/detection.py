@@ -27,6 +27,7 @@ class Detection(Node):
 
         self.image_sub = self.create_subscription(Image, '/stinger/camera_0/image_raw', self.image_callback, 10)
         self.gate_pos_pub = self.create_publisher(Gate, '/stinger/gate_location', 10)
+        self.detection_img_pub = self.create_publisher(Gate, '/stinger/detection_image', 10)
         self.bridge = CvBridge()
         self.hsv = None
         self.frame = None
@@ -118,7 +119,8 @@ class Detection(Node):
                 cv2.circle(self.frame, (int(x), int(y)), int(radius), (255, 0, 0), 3)
                 detected.append((int(x), int(y), radius))
             ### END STUDENT CODE
-        cv2.imshow("original_frame", self.frame)
+        # cv2.imshow("original_frame", self.frame)
+        self.detection_img_pub.publish(self.frame)
         detected_sorted = sorted(detected, key=lambda x: x[2], reverse=True)
         return detected_sorted
 
