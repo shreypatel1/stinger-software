@@ -20,11 +20,6 @@ def generate_launch_description():
         ),
         Node(
             package='stinger_bringup',
-            executable='imu-imu_republisher',
-            name='imu_republisher',
-        ),
-        Node(
-            package='stinger_bringup',
             executable='gps-node',
             name='gps_node',
         ),

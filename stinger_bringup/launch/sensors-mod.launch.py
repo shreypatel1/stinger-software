@@ -13,21 +13,16 @@ from launch.substitutions import PathJoinSubstitution
 def generate_launch_description():
 
     return LaunchDescription([
-        Node(
-            package='stinger_bringup',
-            executable='imu-node',
-            name='imu_node',
-        ),
-        Node(
-            package='stinger_bringup',
-            executable='imu-imu_republisher',
-            name='imu_republisher',
-        ),
-        Node(
-            package='stinger_bringup',
-            executable='gps-node',
-            name='gps_node',
-        ),
+        # Node(
+        #     package='stinger_bringup',
+        #     executable='imu-node',
+        #     name='imu_node',
+        # ),
+        # Node(
+        #     package='stinger_bringup',
+        #     executable='gps-node',
+        #     name='gps_node',
+        # ),
         Node(
             package='stinger_bringup',
             executable='camera-node',
