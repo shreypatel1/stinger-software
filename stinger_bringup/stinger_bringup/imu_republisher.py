@@ -1,6 +1,7 @@
 import rclpy
 from rclpy.node import Node
 from rclpy.clock import Duration
+from rclpy.time import Time
 from sensor_msgs.msg import Imu
 import tf_transformations
 import numpy as np
@@ -35,7 +36,7 @@ class ImuRepublisher(Node):
             transform = self.tf_buffer.lookup_transform(
                 target_frame='base_link',
                 source_frame=msg.header.frame_id,
-                time=rclpy.time.Time(),
+                time=Time.from_msg(msg.header.stamp),
                 timeout=Duration(seconds=1.0)
             )
         except:
