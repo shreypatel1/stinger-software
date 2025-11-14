@@ -42,7 +42,7 @@ class ImuRepublisher(Node):
                 lookup_time = Time.from_msg(msg.header.stamp)
 
             transform = self.tf_buffer.lookup_transform(
-                target_frame='base_link',
+                target_frame='imu_link',
                 source_frame=msg.header.frame_id,
                 time=lookup_time,
                 timeout=Duration(seconds=2.0)
@@ -82,7 +82,7 @@ class ImuRepublisher(Node):
         transformed_msg = Imu()
         transformed_msg.header.stamp = msg.header.stamp
         # Notice that the new frame is now in our base_link frame as desired
-        transformed_msg.header.frame_id = 'base_link'
+        transformed_msg.header.frame_id = 'imu_link'
         transformed_msg.orientation.x = transformed_orientation[0]
         transformed_msg.orientation.y = transformed_orientation[1]
         transformed_msg.orientation.z = transformed_orientation[2]
