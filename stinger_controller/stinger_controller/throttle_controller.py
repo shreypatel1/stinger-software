@@ -67,7 +67,10 @@ class ThrottleController(Node):
 
         # Publish the thrust commands
         self.port_thruster_pub.publish(Float64(data=u_port))
+        self.get_logger().info(f'Port Thruster Command: {u_port:.2f} N')
         self.stbd_thruster_pub.publish(Float64(data=u_stbd))
+        self.get_logger().info(f'Starboard Thruster Command: {u_stbd:.2f} N')
+
 
 def main(args=None):
     rclpy.init(args=args)
