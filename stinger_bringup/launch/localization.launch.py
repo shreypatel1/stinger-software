@@ -22,6 +22,10 @@ def generate_launch_description():
             executable='ekf_node',
             name='ekf_filter_node',
             parameters=[robot_localization_file_path],
+            remappings=[
+                # Remap the imu topic configured in ekf.yaml to the imu_republisher output
+                ('/stinger/imu/data', '/stinger/imu/relative'),
+            ],
         ),    
         Node(
             package='robot_localization',
