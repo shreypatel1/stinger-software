@@ -76,7 +76,7 @@ class StateMachine(Node):
 
         self.get_logger().info(f"Red: {left_gate_location}, Green: {right_gate_location}")
 
-        if left_gate_location < 0 or right_gate_location < 0:
+        if left_gate_location <= 0 or right_gate_location <= 0:
             return
 
         mid_x = (right_gate_location + left_gate_location) / 2
