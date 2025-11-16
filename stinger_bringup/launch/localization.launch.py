@@ -22,11 +22,7 @@ def generate_launch_description():
             executable='ekf_node',
             name='ekf_filter_node',
             parameters=[robot_localization_file_path],
-            remappings=[
-                # Remap the imu topic configured in ekf.yaml to the imu_republisher output
-                ('/stinger/imu/data', '/stinger/imu/relative'),
-            ],
-        ),    
+        ),
         Node(
             package='robot_localization',
             executable='navsat_transform_node',
@@ -37,7 +33,7 @@ def generate_launch_description():
             # TODO: 4.4.b Navsat Node
             # Example: (topic, remaped_topic)
             ### STUDENT CODE HERE
-            ('/imu', '/stinger/imu/relative'),
+            ('/imu/data', '/stinger/imu/relative'),
             ('/gps/fix', '/stinger/gps/fix')
             ### END STUDENT CODE
             ],

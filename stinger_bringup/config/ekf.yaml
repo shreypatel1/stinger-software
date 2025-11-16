@@ -5,7 +5,7 @@ ekf_filter_node:
         # Use wall-clock time for bringup (set true only when running in simulation
         # with a /clock publisher). Using simulated time while no /clock is present
         # can prevent the EKF from processing incoming sensor messages.
-        use_sim_time: true
+        use_sim_time: false
 
         # The frequency, in Hz, at which the filter will output a position estimate. Note that the filter will not begin
         # computation until it receives at least one message from one of the inputs. It will then run continuously at the
@@ -99,7 +99,7 @@ ekf_filter_node:
         #         x_accel , y_accel  , z_accel]
 
         # TODO: 4.4.a Integrating IMU in robot_localization
-        imu0: /stinger/imu/data
+        imu0: /stinger/imu/relative
         # 4.4.a Example
         # imu0_config: [true, true, false,
         #               false, false, true,
