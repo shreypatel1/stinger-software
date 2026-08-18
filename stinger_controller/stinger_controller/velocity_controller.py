@@ -10,7 +10,11 @@ class VelocityController(Node):
         
         # TODO: 5.1.a Velocity Controller Setup
         ### STUDENT CODE HERE
+        self.cmd_vel_sub = self.create_subscription(Twist, '/cmd_vel', self.cmd_vel_callback, 10)
 
+        self.odom_sub = self.create_subscription(Odometry, '/odometry/filtered', self.odometry_callback, 10)
+
+        self.wrench_pub = self.create_publisher(WrenchStamped, '/cmd_wrench', 10)
         ### END STUDENT CODE
 
         # Mock Values, Tune These
@@ -25,7 +29,13 @@ class VelocityController(Node):
         # TODO: 5.1.g Controller Tuning
         # You should be overriding the above values!
         ### STUDENT CODE HERE
+        self.Kp_surge = 10
+        self.Ki_surge = 0
+        self.Kd_surge = 0
 
+        self.Kp_yaw = 5
+        self.Ki_yaw = 0
+        self.Kd_yaw = 0
         ### END STUDENT CODE
 
         self.cmd_vel = Twist()
@@ -51,25 +61,26 @@ class VelocityController(Node):
         error_surge = 0
         # TODO: 5.1.b Error Calculation
         ### STUDENT CODE HERE
-
+        error_surge = self.cmd_vel.linear.x - msg.twist.twist.linear.x
         ### END STUDENT CODE
 
         P_surge = 0
         # TODO: 5.1.c Proportional Calculation
         ### STUDENT CODE HERE
-
+        P_surge = self.Kp_surge * error_surge
         ### END STUDENT CODE
         
         I_surge = 0
         # TODO: 5.1.d Integral Calculation
         ### STUDENT CODE HERE
-
+        self.I_surge_total += error_surge * dt
+        I_surge = self.Ki_surge * self.I_surge_total
         ### END STUDENT CODE
 
         D_surge = 0
         # TODO: 5.1.e Derivative Calculation
         ### STUDENT CODE HERE
-
+        D_surge = self.Kd_surge * (error_surge - self.prev_error_surge) / dt
         ### END STUDENT CODE
 
         control_surge = P_surge + I_surge + D_surge
@@ -77,10 +88,18 @@ class VelocityController(Node):
 
         # TODO: 5.1.f Yaw Control
         ### STUDENT CODE HERE
-
+        error_yaw = self.cmd_vel.angular.z - msg.twist.twist.angular.z
+        P_yaw = self.Kp_yaw * error_yaw
+        self.I_yaw_total += error_yaw * dt
+        I_yaw = self.Ki_yaw * self.I_yaw_total
+        D_yaw = self.Kd_yaw * (error_yaw - self.prev_error_yaw) / dt
+        control_yaw = P_yaw + I_yaw + D_yaw
+        output_force.wrench.torque.z = control_yaw
         ### END STUDENT CODE
 
         self.wrench_pub.publish(output_force)
+        self.prev_error_surge = error_surge
+        self.prev_error_yaw = error_yaw
 
         # Ignore this line, only for autograder purposes
         return error_surge, P_surge, I_surge, D_surge, control_yaw, output_force
