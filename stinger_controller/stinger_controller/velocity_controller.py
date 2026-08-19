@@ -29,13 +29,13 @@ class VelocityController(Node):
         # TODO: 5.1.g Controller Tuning
         # You should be overriding the above values!
         ### STUDENT CODE HERE
-        self.Kp_surge = 10
-        self.Ki_surge = 0
+        self.Kp_surge = 12
+        self.Ki_surge = 12
         self.Kd_surge = 0
 
-        self.Kp_yaw = 5
-        self.Ki_yaw = 0
-        self.Kd_yaw = 0
+        self.Kp_yaw = 30
+        self.Ki_yaw = 10
+        self.Kd_yaw = 2
         ### END STUDENT CODE
 
         self.cmd_vel = Twist()
