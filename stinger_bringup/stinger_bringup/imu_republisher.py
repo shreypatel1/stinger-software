@@ -72,6 +72,9 @@ class ImuRepublisher(Node):
         transformed_msg.linear_acceleration.x = lin_acc[0]
         transformed_msg.linear_acceleration.y = lin_acc[1]
         transformed_msg.linear_acceleration.z = lin_acc[2]
+        transformed_msg.orientation_covariance = [0.01, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0, 0.0, 0.01]
+        transformed_msg.angular_velocity_covariance = [0.01, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0, 0.0, 0.01]
+        transformed_msg.linear_acceleration_covariance = [0.01, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0, 0.0, 0.01]
 
         return transformed_msg
 
