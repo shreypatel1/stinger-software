@@ -19,9 +19,9 @@ PORT_ESC_PIN = 13  # GPIO13 for port motor
 STARBOARD_ESC_PIN = 12  # GPIO12 for starboard motor
 PWM_FREQUENCY = 50  # Standard servo ESC frequency (50 Hz)
 INITIAL_PULSE_WIDTH = 1000  # First pulse width (1.0 ms)
-MIN_PULSE_WIDTH = 1100  # Microseconds (1.1 ms)
-MAX_PULSE_WIDTH = 1900  # Microseconds (1.9 ms)
-NEUTRAL_PULSE_WIDTH = 1500 # Microseconds (1.5 ms)
+MIN_PULSE_WIDTH = 1148  # Microseconds (1.1 ms)
+MAX_PULSE_WIDTH = 1832  # Microseconds (1.9 ms)
+NEUTRAL_PULSE_WIDTH = 1488 # Microseconds (1.5 ms)
 
 class ESCControlNode(Node):
     def __init__(self):
@@ -38,8 +38,8 @@ class ESCControlNode(Node):
         self.pi.set_mode(STARBOARD_ESC_PIN, pigpio.OUTPUT)
         
         # Initialize ESCs with first pulse width of 1000us
-        self.pi.set_servo_pulsewidth(PORT_ESC_PIN, INITIAL_PULSE_WIDTH)
-        self.pi.set_servo_pulsewidth(STARBOARD_ESC_PIN, INITIAL_PULSE_WIDTH)
+        self.pi.set_servo_pulsewidth(PORT_ESC_PIN, NEUTRAL_PULSE_WIDTH)
+        self.pi.set_servo_pulsewidth(STARBOARD_ESC_PIN, NEUTRAL_PULSE_WIDTH)
         time.sleep(1)  # Allow ESC to register initial pulse
 
         # ROS2 subscriptions
