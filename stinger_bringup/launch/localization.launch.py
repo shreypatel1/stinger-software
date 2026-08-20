@@ -8,6 +8,7 @@ from ament_index_python import get_package_share_directory
 from launch import LaunchDescription
 from launch_ros.actions import Node
 import os
+import xacro
 
 def generate_launch_description():
 
@@ -16,7 +17,25 @@ def generate_launch_description():
     robot_localization_file_path = (pkg_share + '/config/ekf.yaml')
     navsat_transform_file_path = (pkg_share + '/config/navsat_transform.yaml')
 
+    # URDF File Path
+    xacro_file = os.path.join(
+        get_package_share_directory('stinger_description'),
+        'urdf',
+        'stinger_tug.urdf.xacro'
+    )
+    
+    # Get URDF from xacro
+    robot_description = xacro.process(xacro_file)
+
     return LaunchDescription([
+        # Robot description publisher
+        Node(
+            name = 'robot_state_publisher',
+            package = 'robot_state_publisher',
+            executable = 'robot_state_publisher',
+            output = 'screen',
+            parameters = [{'robot_description': robot_description}]
+        ),
         Node(
             package='robot_localization',
             executable='ekf_node',
